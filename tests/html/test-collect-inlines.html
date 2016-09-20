@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang='en-US'>
+	<head>
+		<title>DaMo - front-end web data models start on the server</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name='description' 
+			  content='The documentation for DaMo, a light-weight php framework for laying out and building front end json models from a MySQL data source.'>
+		<meta name = 'keywords' 
+			  content='PHP, PHP Framework, JSON, data models, MySQL database, PHP, XML to JSON converter'>
+		<meta name='author' content='Joshua Glazer'>
+		<link href='' rel='shortcut icon'>
+		<link href='../css/bootstrap.min.css' rel='stylesheet' type='text/css'>
+		<link href='../css/doc.css' rel = 'stylesheet' type='text/css'>
+		<noscript>
+			<div id='no-script-container' class='col-xs-12 col-md-10 col-md-offset-1'>PAGE'S FUNCTIONALITY LIMITED WITHOUT JAVASCRIPT ENABLED.</div>
+			<div id='no-script-link-container' class='col-xs-12 col-md-10 col-md-offset-1'>
+				<a href='#MIDDLE'>Open PDF of Documentation</a>
+			</div>
+			<div class='div-extender'></div>
+		</noscript>
+		<!-- <script src='../scripts/angular.min.js'></script> -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+		<script src='../scripts/docBuilder.js'></script>
+		<script src='../scripts/docModule.js'></script>
+	</head>
+	<body ng-app='Documentation'>
+		<div id='outer-container' class='container-fluid'>
+			<div id='title-row' class='row'>
+				<div class="col-xs-12" id="title-main-col">
+					<span style="color:#008080">
+						<span style="font-size:40px">
+							<var>
+								<span style="font-family:times new roman,times,serif">DaMo</span>
+							</var> 
+						</span>
+					</span>
+					<span style="color:#808080">
+						<span style="font-size:24px">A lightweight framework for binding SQL Database Derived Data to JSON models</span>
+					</span>
+					<br>
+					<span style="color:red; font-size:20px">
+						(Mobile Version Under Construction)
+					</span>
+				</div>
+				<hr>
+				<div class='div-extender'></div>
+			</div>
+			<div id='main-row' class='row' ng-controller='MenuBuilder'>
+				<div id='nav-bar-outer-container' class = 'col-xs-12 col-md-offset-1 col-md-3' style='border: 1px solid #dddddd; background-color: #fdfdfd' >
+					<ul id ='navigation-main-list' class='navigation-list'>
+						<li>Head Element</li>
+						<li class='navigation-main-element nav-el' id="{{section.section_id}}" ng-mouseover="mouseover = section.section_id;" ng-mouseleave="mouseover = 'afadfdafdafdafd4tefd'" ng-click="activate_element(getIdByName(section.name))" ng-repeat='section in DocElement.sections'>
+							<a class="fl-inline-anchors" href="{{'#'+section.section_id}}">
+								<div class='navigation-main-element-title' ng-bind='section.name' ng-class="{'active-nav-element':isActiveElement(section.section_id)}"></div>
+							</a>
+							<ul class='navigation-sub-list-1 navigation-list' ng-class="{'navigation-sub-list-1-not-active':!isActiveElement(section.section_id)}" ng-show="isActiveElement(section.section_id) || mouseover == section.section_id || main_child_active(section.section_id)">
+								<li class='navigation-sub-element nav-el' ng-class="{'active-nav-element':isActiveElement(getIdByName(subsection))}" ng-click="activate_element(getIdByName(subsection)); $event.stopPropagation()" id="{{getIdByName(subsection)}}" ng-repeat='subsection in section.subsection_titles'>
+									<a href="{{'#'+getIdByName(subsection)}}">
+										<div class='navigation-sub-element-title' ng-bind='subsection'></div>
+									</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+					<!--<div ng-bind="scrollUp"></div>
+					<div ng-bind="pos_holder_above_mid"></div>
+					<div ng-bind="test_field"></div>-->
+				</div>
+				<div id='main-content-container' class = 'col-xs-12 col-md-8' style='border: 1px solid #dddddd; background-color: #fdfdfd' ng-controller='DocumentationBuilder'>
+					<h1><span style="color:rgb(0, 128, 128)"><strong>Introduction to DaMo</strong></span></h1>
+
+					<hr />
+					<p><a name="_b11"></a></p>
+
+					<p><span style="font-size:18px"><strong>What is Damo?</strong></span></p>
+
+					<p><span style="font-size:14px">DaMo&nbsp;is a lightweight PHP framework geared toward producing complex&nbsp;JSON data models sourced from a MySQL database. A simple and intuitive XML format is used to tie together the database and PHP code into a&nbsp;JSON model. The full power and capability of Damo is inkoked in registering specific &quot;addresses&quot;&nbsp;in&nbsp;the database with&nbsp;points&nbsp;in&nbsp;the XML model. Another, simple way of explaining DaMo&nbsp;is that it helps&nbsp;&quot;binds&quot; points in a server side&nbsp;database (MySQL) to points in a clientside&nbsp;JSON model.&nbsp;</span></p>
+
+					<p><a name="_b12"></a></p>
+
+					<p><span style="font-size:18px"><strong>Why Use DaMo?</strong></span></p>
+
+					<p><span style="font-size:14px">For simple JSON models consisting of a couple data points the utility of DaMo may not be clear or easy to justify (though future updates will be geared toward&nbsp;changing&nbsp;this). However, imagine you need to return the top 15 or 20 results of a search where each result has many datapoints sourced from different tables or different databases all together and a few levels of depth. All of the sudden, the simple procedure of querying a database and echoing a couple brackets, names, and results back&nbsp;becomes a lot more complicated and messy. DaMo seeks to make this process more simple and intuitive by helping to separate concerns. Database addresses are registered and result&nbsp;handling is laid out in using&nbsp;PHP registration code and the format and data placement in&nbsp;the JSON is laid out in the XML model.</span></p>
+
+					<p><a name="_b13"></a></p>
+
+					<p><span style="font-size:18px"><strong>Quick Start Guide</strong></span></p>
+
+					<p><span style="font-size:14px">Producing a JSON model with DaMo involves&nbsp;the following primary steps:</span></p>
+
+					<ol>
+						<li><span style="font-size:14px">Register MySQL queries and result handlers to an instance of the&nbsp;Scope object</span></li>
+						<li><span style="font-size:14px">Design the JSON Model using XML and MySQL query information registered to a Scope object</span></li>
+						<li><span style="font-size:14px">Instantiate a&nbsp;Damo&nbsp;object with a Scope object and the XML model</span></li>
+						<li><span style="font-size:14px">Call _JSON method of the Damo object</span></li>
+					</ol>
+
+					<p><span style="font-size:14px">The first two steps are the most involved by far. Let&#39;s take a closer look at what implementing these steps looks like.</span></p>
+
+					<p><span style="font-size:14px">Let&#39;s say we start out with a two MySQL tables of the following format in the&nbsp;<em>LetsTestDaMo</em>&nbsp;database.</span></p>
+
+					<hr />
+					<p><span style="font-size:16px">1.&nbsp;<em>UserInformation</em>&nbsp;Table</span><br />
+					<img alt="User Information Table" src="http://localhost/TrailGuide/Website/Interface/webDataModelBuild/Documentation/UserInformation.png" style="height:450px; margin-top:12px; width:800px" /></p>
+
+					<hr />
+					<p><span style="font-size:16px">2.&nbsp;<em>ProfilePics</em>&nbsp;Table</span></p>
+
+					<p><span style="font-size:14px"><img alt="Profile Pics Database" src="http://localhost/TrailGuide/Website/Interface/webDataModelBuild/Documentation/ProfilePictures.png" style="height:450px; width:800px" /></span></p>
+
+					<hr />
+					<p><span style="font-size:14px">With these two tables we now have a set of data to work with. At this point we may have in mind a feature to display all users with score greater than 10000. With this being our goal we must first create a php file where from which our query will be stored and executed. In our file we will perform the following steps:</span></p>
+
+					<p><span style="font-size:14px">1. Include Damo - this assumes Damo.min.php is in the same directory we are running our php script from.</span></p>
+
+					<div class="code-block">
+					<p><span style="font-size:14px"><span style="color:rgb(0, 0, 205)"><strong>include</strong></span>(<span style="color:rgb(255, 140, 0)">&quot;Damo.min.php&quot;</span>);&nbsp;&nbsp;&nbsp;&nbsp;</span></p>
+					</div>
+
+					<p><span style="font-size:14px">2. You are ready to begin registering query information to $scope. Note, that you may find it useful for some projects to create a multiple instances of the scope object. Below are two examples of registering a permission key, one to the $scope instance and one to a newly defined instance, $myscope, of the Scope object. The Permission_key object is another custom object to DaMo. This provides DaMo with access to the database(s) which you will be querying.</span></p>
+
+					<div class="code-block">
+					<p><span style="font-size:14px">&nbsp;<span style="color:#008080">$scope-</span>&gt;perm_key([<span style="color:#FF8C00">&quot;key1&quot;</span>], [<span style="color:#0000CD"><strong>new</strong></span> Permission_key(<span style="color:#FF8C00">&quot;MySQL_root&quot;</span>, <span style="color:#FF8C00">&quot;MySQL_uname&quot;</span>, <span style="color:#FF8C00">&quot;MySQL_pword&quot;</span>)]);</span></p>
+					</div>
+
+					<p><span style="font-size:14px">or</span></p>
+
+					<div class="code-block">
+					<p><span style="font-size:14px"><span style="color:#008080">$myscope</span> =<strong><span style="color:#0000CD"> new </span></strong>Scope();</span></p>
+
+					<p><span style="font-size:14px"><span style="color:#008080">$mypermission&nbsp;</span><span style="color:#000000">= </span><strong><span style="color:#0000CD">new</span></strong><span style="color:#000000"> Permission_key(</span><span style="color:rgb(255, 140, 0)">&quot;MySQL_root&quot;</span>,&nbsp;<span style="color:rgb(255, 140, 0)">&quot;MySQL_uname&quot;</span>,&nbsp;<span style="color:rgb(255, 140, 0)">&quot;MySQL_pword&quot;</span><span style="color:#000000">);</span></span></p>
+
+					<p><span style="font-size:14px"><span style="color:#008080">$myscope</span><span style="color:#000000">-&gt;perm_key([</span><span style="color:#008080">&quot;key1&quot;</span><span style="color:#000000">], [</span><span style="color:#008080">$mypermission</span><span style="color:#000000">]);</span></span></p>
+					</div>
+
+					<p><span style="font-size:14px">3. From step 2 above we see a format for registering information that will be followed with all of the Scope objects registration methods. The format places an array of string names as the first argument and &nbsp;an array of values as the second argument. The values can be strings, arrays, or objects depending on the specific requirements of the given method. All methods of Scope also return a reference back&nbsp;to the object.</span></p>
+
+					<div class="code-block">
+					<p><span style="font-size:14px"><span style="color:#008080">$myscope</span>-&gt;query([<span style="color:#FF8C00">&quot;query1&quot;</span>], [<span style="color:#FF8C00">&quot;SELECT * FROM database.table WHERE id &lt; ?&quot;</span>])<br />
+					&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;-&gt;bind_types([<span style="color:#FF8C00">&quot;id_type&quot;</span>], [<span style="color:#FF8C00">&quot;i&quot;</span>])<br />
+					&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;-&gt;bind_values([<span style="color:#FF8C00">&quot;id_limit&quot;</span>], [[<span style="color:#008000">20</span>]])<br />
+					&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;-&gt;result_handler([<span style="color:#FF8C00">&quot;rh1&quot;</span>, <span style="color:#FF8C00">&quot;rh2&quot;</span>], [<span style="color:#008080">$ref_to_function1</span>, <span style="color:#008080">$ref_to_function2</span>]);</span></p>
+					</div>
+
+					<p><span style="font-size:14px">Below is a quick breakdown of each of the registration functions above:</span></p>
+
+					<ul>
+						<li><span style="font-size:14px"><em>query</em>&nbsp; - takes a properly formated query and stores it in the scope under the name given in the first argument.</span></li>
+						<li><span style="font-size:14px"><em>bind_types</em>&nbsp; - takes a string indicating the type of values to be bound to the query. This is a part of PHP&#39;s&nbsp;security&nbsp;against SQL Injection.</span></li>
+						<li><span style="font-size:14px"><em>bind_values</em>&nbsp;- takes an array of values to be bound to a given query. This is also a part of PHP&#39;s security&nbsp;against SQL Injection.</span></li>
+						<li><span style="font-size:14px"><em>result_handler</em>&nbsp; - This takes either explicit function definitions or references to functions used to pick out desired values from MySQL data.&nbsp;</span></li>
+					</ul>
+
+					<p><span style="font-size:14px">One last note to make is that all of these methods (including the <em>perm_key</em> method used in step 2) can take multiple values in their array arguments. The result handler method is used in this way. The first name in the first argument gets assocatiated with the first value in the second argumemnt, The second name with the second value and so and and so forth.</span></p>
+
+					<p><strong><span style="font-size:14px">4.&nbsp;</span></strong><span style="font-size:14px">Define the result handler functions registered to the scope - this is where the user pulls the results specific value to place in the JSON model. The result handler functions have a 2-dimensional array and an iteration number passed to them. The first dimension of the array is indexed by integers, the second by&nbsp;names of columns returned from the database.&nbsp;</span></p>
+
+					<div class="code-block"><br />
+					<span style="font-size:14px"><span style="color:#008080">$ref_to_function1</span> = <strong><span style="color:#0000CD">function</span></strong>(<span style="color:#008080">$result</span>, <span style="color:#008080">$i</span><span style="color:#000000">)</span> {</span><br />
+					<span style="font-size:14px">&nbsp;&nbsp; &nbsp; </span><span style="font-size:14px"><strong><span style="color:#0000CD">if</span></strong>(isset(<span style="color:#008080">$result</span>[<span style="color:#008080">$i</span>][<span style="color:#FF8C00">&quot;username&quot;</span>])</span><br />
+					&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="font-size:14px"><strong><span style="color:#0000CD"> return</span></strong></span>&nbsp;<span style="font-size:14px"><span style="color:#008080">$result</span>[<span style="color:#008080">$i</span>]<span style="color:#000000">[</span><span style="color:#FF8C00">&quot;username&quot;</span>];</span><br />
+					<span style="font-size:14px">&nbsp;&nbsp; &nbsp; <strong><span style="color:#0000CD">else</span></strong></span><br />
+					<span style="font-size:14px">&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color:#0000CD"><strong>return</strong></span> <span style="color:#FF8C00">&quot;&quot;</span>;</span><br />
+					<span style="font-size:14px">}</span><br />
+					<br />
+					<span style="font-size:14px"><span style="color:#008080">$ref_to_function2</span> = <span style="color:#0000CD"><strong>function</strong></span>(<span style="color:#008080">$result</span><span style="color:#000000">, </span><span style="color:#008080">$i</span>) {</span><br />
+					&nbsp; <span style="font-size:14px">&nbsp; &nbsp; &nbsp;<strong><span style="color:#0000CD">if</span></strong>(isset(<span style="color:#008080">$result</span>[<span style="color:#008080">$i</span>][<span style="color:#FF8C00">&quot;score&quot;</span>])</span><br />
+					&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="font-size:14px"><span style="color:#0000CD"><strong>return</strong></span></span>&nbsp;<span style="font-size:14px"><span style="color:#008080">$result</span>[<span style="color:#008080">$i</span>][<span style="color:#FF8C00">&quot;score&quot;</span>];</span><br />
+					<span style="font-size:14px">&nbsp;&nbsp; &nbsp;<span style="color:#0000CD"><strong> else</strong></span></span><br />
+					<span style="font-size:14px">&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<strong><span style="color:#0000CD">return </span></strong><span style="color:#FF8C00">&quot;&quot;</span>;</span><br />
+					<span style="font-size:14px">}</span><br />
+					&nbsp;</div>
+
+					<p><strong>5.&nbsp;</strong>Model the JSON output with an xml document - this xml format has directives for passing query information into the model.&nbsp;</p>
+
+					<div class="code-block"><br />
+					<strong>file://.../highscoremodel.xml</strong>
+
+					<hr /> <span style="font-size:14px"><strong><span style="color:#0000CD">&lt;?xml</span> <span style="color:#000080">version</span></strong>=<span style="color:#FF8C00">&quot;1.0&quot;</span><strong> <span style="color:#000080">encoding</span></strong>=<span style="color:#FF8C00">&quot;UTF-8&quot;</span><strong><span style="color:#0000CD">?&gt;</span><br />
+					<span style="color:#0000CD">&lt;userlist </span><span style="color:#000080">dm-perm-key</span></strong>=<span style="color:#FF8C00">&quot;key1&quot;</span><br />
+					<strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color:#000080">dm-query</span></strong>=<span style="color:#FF8C00">&quot;query1&quot;</span><br />
+					<strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color:#000080">dm-bind-str</span></strong>=<span style="color:#FF8C00">&quot;id_type&quot;</span><br />
+					<strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color:#000080">dm-bind-array</span></strong>=<span style="color:#FF8C00">&quot;id_limit&quot;</span><br />
+					<strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span style="color:#000080">dm-query-point</span></strong>=<span style="color:#FF8C00">&quot;&quot;</span><strong><span style="color:#0000CD">&gt;</span><br />
+					&nbsp; &nbsp; &nbsp;<span style="color:#0000CD">&lt;user</span> <span style="color:#000080">dm-repeat</span></strong>=<span style="color:#FFA500">&quot;5&quot;</span><br />
+					<strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color:#000080">dm-name</span></strong>=<span style="color:#FF8C00">&quot;highscoreuser&quot;</span><strong><span style="color:#0000CD">&gt;</span><br />
+					&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color:#0000CD">&lt;username</span> <span style="color:#000080">dm-result-handler</span>=</strong><span style="color:#FF8C00">&quot;rh1&quot;</span><strong><span style="color:#0000CD">&gt;&lt;/username&gt;</span><br />
+					&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color:#0000CD">&lt;score</span> <span style="color:#000080">dm-result-handler</span></strong>=<span style="color:#FF8C00">&quot;rh2&quot;</span><strong><span style="color:#0000CD">&gt;&lt;/score&gt;&nbsp; </span>&nbsp; &nbsp; &nbsp;<br />
+					<span style="color:#0000CD">&nbsp; &nbsp; &nbsp;&lt;/user&gt;<br />
+					&lt;/userlist&gt;</span></strong></span><br />
+					&nbsp;</div>
+
+					<p>Here&#39;s a brief rundown of the dirrectives/properties&nbsp;used in this model. For a more complete description skip to <a href="http://daffad">*** </a>&nbsp;section.</p>
+
+					<ul>
+						<li><em>dm-perm-key</em> - registers permission key by scope name to model</li>
+						<li><em>dm-query</em> - registers query by scope name to model</li>
+						<li><em>dm-bind-str </em>- registers bind types by scope name to model</li>
+						<li><em>dm-bind-array </em>- registers bind values array by scope name&nbsp;</li>
+						<li><em>dm-query-point</em> - tells the Damo query engine where to query the database. Can take an empty string as a value.&nbsp;</li>
+						<li><em>dm-result-handler</em> - tells the Damo JSON builder what function to use to get data to add to the JSON model.&nbsp;</li>
+						<li><em>dm-name</em> - a directive to mark a point in the model. In many ways like an id tag in html. Allows access to the data bound&nbsp;to a specific point in model.</li>
+						<li><em>dm-class</em> - can be added to multiple points in the model. dm-repeat automatically turns dm-name to dm-class when reproducig and element.</li>
+						<li><em>dm-repeat</em> - takes an integer indicating the number of times to repeat a specific element in the data model when</li>
+					</ul>
+
+					<p><strong>6. </strong>Instantiate&nbsp;a Damo object with the scope object and xml model (xml model can be passed as a string or file).</p>
+
+					<div class="code-block">
+					<p><span style="color:#008080">$damo_instance</span> = <span style="color:#0000CD"><strong>new</strong></span> Damo(<span style="color:#008080">$myscope</span>, <span style="color:#FF8C00">&quot;highscoremodel.xml&quot;</span>);</p>
+					</div>
+
+					<p>7. Use the _JSON method of the Damo object to build a JSON array based on our model.&nbsp;</p>
+
+					<div class="code-block">
+					<p><span style="color:#0000CD"><strong>echo</strong></span> <span style="color:#008080">$damo _instance</span>-&gt;_JSON();</p>
+					</div>
+
+					<p>Now, let&#39;s put it altogether with the UserInformation table shown above.&nbsp;The query registration file, highscoreregistration.php, is as follows:</p>
+
+					<div class="code-block">
+					<p><strong>file://.../highscoreregistration.php</strong></p>
+
+					<hr />
+					<p><span style="font-size:14px">&nbsp;<span style="color:rgb(0, 0, 205)"><strong>include</strong></span>(<span style="color:rgb(255, 140, 0)">&quot;Damo.min.php&quot;</span>);</span></p>
+
+					<p><span style="font-size:14px"><span style="color:#008080">$myscope</span> = <span style="color:#0000CD"><strong>new </strong></span>Scope();</span></p>
+
+					<p><span style="font-size:14px">&nbsp;<span style="color:rgb(0, 128, 128)">$myscope-</span>&gt;perm_key([<span style="color:rgb(255, 140, 0)">&quot;key1&quot;</span>], [<span style="color:rgb(0, 0, 205)"><strong>new</strong></span>&nbsp;Permission_key(<span style="color:rgb(255, 140, 0)">&quot;MySQL_address&quot;</span>,&nbsp;<span style="color:rgb(255, 140, 0)">&quot;username&quot;</span>,&nbsp;<span style="color:rgb(255, 140, 0)">&quot;password&quot;</span>)]);</span></p>
+
+					<p><span style="font-size:14px"><span style="color:rgb(0, 128, 128)">$ref_to_function1</span>&nbsp;=&nbsp;<strong><span style="color:rgb(0, 0, 205)">function</span></strong>(<span style="color:rgb(0, 128, 128)">$result</span>,&nbsp;<span style="color:rgb(0, 128, 128)">$i</span><span style="color:rgb(0, 0, 0)">)</span>&nbsp;{<br />
+					&nbsp;&nbsp; &nbsp;&nbsp;<strong><span style="color:rgb(0, 0, 205)">if</span></strong>(isset(<span style="color:rgb(0, 128, 128)">$result</span>[<span style="color:rgb(0, 128, 128)">$i</span>][<span style="color:rgb(255, 140, 0)">&quot;user_name&quot;</span>]))<br />
+					&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<strong><span style="color:rgb(0, 0, 205)">&nbsp;return</span></strong>&nbsp;<span style="color:rgb(0, 128, 128)">$result</span>[<span style="color:rgb(0, 128, 128)">$i</span>]<span style="color:rgb(0, 0, 0)">[</span><span style="color:rgb(255, 140, 0)">&quot;user_name&quot;</span>];<br />
+					&nbsp;&nbsp; &nbsp;&nbsp;<strong><span style="color:rgb(0, 0, 205)">else</span></strong><br />
+					&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color:rgb(0, 0, 205)"><strong>return</strong></span>&nbsp;<span style="color:rgb(255, 140, 0)">&quot;&quot;</span>;<br />
+					}<br />
+					<br />
+					<span style="color:rgb(0, 128, 128)">$ref_to_function2</span>&nbsp;=&nbsp;<span style="color:rgb(0, 0, 205)"><strong>function</strong></span>(<span style="color:rgb(0, 128, 128)">$result</span><span style="color:rgb(0, 0, 0)">,&nbsp;</span><span style="color:rgb(0, 128, 128)">$i</span>) {<br />
+					&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;<strong><span style="color:rgb(0, 0, 205)">if</span></strong>(isset(<span style="color:rgb(0, 128, 128)">$result</span>[<span style="color:rgb(0, 128, 128)">$i</span>][<span style="color:rgb(255, 140, 0)">&quot;max_score&quot;</span>])<br />
+					&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;<span style="color:rgb(0, 0, 205)"><strong>return</strong></span>&nbsp;<span style="color:rgb(0, 128, 128)">$result</span>[<span style="color:rgb(0, 128, 128)">$i</span>][<span style="color:rgb(255, 140, 0)">&quot;max_score&quot;</span>];<br />
+					&nbsp;&nbsp; &nbsp;<span style="color:rgb(0, 0, 205)"><strong>&nbsp;else</strong></span><br />
+					&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<strong><span style="color:rgb(0, 0, 205)">return&nbsp;</span></strong><span style="color:rgb(255, 140, 0)">&quot;&quot;</span>;<br />
+					}</span></p>
+
+					<p><span style="font-size:14px"><span style="color:rgb(0, 128, 128)">$myscope</span>-&gt;query([<span style="color:rgb(255, 140, 0)">&quot;query1&quot;</span>], [<span style="color:rgb(255, 140, 0)">&quot;SELECT * FROM LetsTestDamo.UserInformation&nbsp;WHERE max_score&nbsp;&gt;&nbsp;? ORDER BY max_score DESC&quot;</span>])<br />
+					&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;-&gt;bind_types([<span style="color:rgb(255, 140, 0)">&quot;score_type&quot;</span>], [<span style="color:rgb(255, 140, 0)">&quot;i&quot;</span>])<br />
+					&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;-&gt;bind_values([<span style="color:rgb(255, 140, 0)">&quot;score_limit&quot;</span>], [[5000]])<br />
+					&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;-&gt;result_handler([<span style="color:rgb(255, 140, 0)">&quot;rh1&quot;</span>,&nbsp;<span style="color:rgb(255, 140, 0)">&quot;rh2&quot;</span>], [<span style="color:rgb(0, 128, 128)">$ref_to_function1</span>,&nbsp;<span style="color:rgb(0, 128, 128)">$ref_to_function2</span>]);</span></p>
+
+					<p><span style="font-size:14px"><span style="color:rgb(0, 128, 128)">$damo_instance</span>&nbsp;=&nbsp;<span style="color:rgb(0, 0, 205)"><strong>new</strong></span>&nbsp;Damo(<span style="color:rgb(0, 128, 128)">$myscope</span>,&nbsp;<span style="color:rgb(255, 140, 0)">&quot;highscoremodel.xml&quot;</span>);</span></p>
+
+					<p><span style="font-size:14px"><span style="color:rgb(0, 0, 205)"><strong>echo</strong></span>&nbsp;<span style="color:rgb(0, 128, 128)">$damo _instance</span>-&gt;_JSON();</span></p>
+					</div>
+
+					<p><span style="font-size:14px">And the xml model file, highscoremodel.xml:</span></p>
+
+					<div class="code-block"><br />
+					<strong>file://.../highscoremodel.xml</strong>
+
+					<hr />
+					<p><span style="font-size:14px"><strong><span style="color:rgb(0, 0, 205)">&lt;?xml</span>&nbsp;<span style="color:rgb(0, 0, 128)">version</span></strong>=<span style="color:rgb(255, 140, 0)">&quot;1.0&quot;</span><strong>&nbsp;<span style="color:rgb(0, 0, 128)">encoding</span></strong>=<span style="color:rgb(255, 140, 0)">&quot;UTF-8&quot;</span><strong><span style="color:rgb(0, 0, 205)">?&gt;</span><br />
+					<span style="color:rgb(0, 0, 205)">&lt;userlist&nbsp;</span><span style="color:rgb(0, 0, 128)">dm-perm-key</span></strong>=<span style="color:rgb(255, 140, 0)">&quot;key1&quot;</span><br />
+					<strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;<span style="color:rgb(0, 0, 128)">dm-query</span></strong>=<span style="color:rgb(255, 140, 0)">&quot;query1&quot;</span><br />
+					<strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;<span style="color:rgb(0, 0, 128)">dm-bind-str</span></strong>=<span style="color:rgb(255, 140, 0)">&quot;score_type&quot;</span><br />
+					<strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;<span style="color:rgb(0, 0, 128)">dm-bind-array</span></strong>=<span style="color:rgb(255, 140, 0)">&quot;score_limit&quot;</span><br />
+					<strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;<span style="color:rgb(0, 0, 128)">dm-query-point</span></strong>=<span style="color:rgb(255, 140, 0)">&quot;&quot;</span><strong><span style="color:rgb(0, 0, 205)">&gt;</span><br />
+					&nbsp; &nbsp; &nbsp;<span style="color:rgb(0, 0, 205)">&lt;user</span>&nbsp;<span style="color:rgb(0, 0, 128)">dm-repeat</span></strong>=<span style="color:rgb(255, 165, 0)">&quot;5&quot;</span><br />
+					<strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color:rgb(0, 0, 128)">dm-name</span></strong>=<span style="color:rgb(255, 140, 0)">&quot;highscoreuser&quot;</span><strong><span style="color:rgb(0, 0, 205)">&gt;</span><br />
+					&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color:rgb(0, 0, 205)">&lt;username</span>&nbsp;<span style="color:rgb(0, 0, 128)">dm-result-handler</span>=</strong><span style="color:rgb(255, 140, 0)">&quot;rh1&quot;</span><strong><span style="color:rgb(0, 0, 205)">&gt;&lt;/username&gt;</span><br />
+					&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="color:rgb(0, 0, 205)">&lt;score</span>&nbsp;<span style="color:rgb(0, 0, 128)">dm-result-handler</span></strong>=<span style="color:rgb(255, 140, 0)">&quot;rh2&quot;</span><strong><span style="color:rgb(0, 0, 205)">&gt;&lt;/score&gt;&nbsp;&nbsp;</span>&nbsp; &nbsp; &nbsp;<br />
+					<span style="color:rgb(0, 0, 205)">&nbsp; &nbsp; &nbsp;&lt;/user&gt;<br />
+					&lt;/userlist&gt;</span></strong></span></p>
+					</div>
+
+					<p>Echoed to the browser from&nbsp;<em>highscoreregistration.php&nbsp;</em>is the following JSON model:</p>
+
+					<div class="code-block" style="line-height: 20.8px;">
+					<p><strong>Result:</strong></p>
+
+					<hr />
+					<p>{userlist:{user:[{username: &quot;traillady26!&quot;, score: 89659},&nbsp;{username: &quot;footballjoc21&quot;, score: 76542},&nbsp;{username: &quot;skaterboy18&quot;, score: 32656},&nbsp;{username: &quot;cheeringgirl17!&quot;, score: 12563}]}}</p>
+
+					<p>&nbsp;</p>
+					</div>
+
+					<p>This result helps unveil the functionality of Damo. The key names in JSON object come from the tag names in the xml model. The dm-repeat directive applied on the &quot;user&quot; tag causes an indexed list of objects to be produced under this element, with number of objects in the list determined by the integer in the string passed to dm-repeat. dm-repeat is further explained in the <a href="http://dafadfa">***</a>&nbsp; section .&nbsp;</p>
+
+					<p><a name="_b14"></a></p>
+
+					<p><strong><span style="font-size:18px">More Examples</span></strong></p>
+
+					<ul>
+						<li>example 1 name - download link</li>
+						<li>example 2 name -link</li>
+						<li>example 3 name -link</li>
+					</ul>
+
+					<p><a name="_a2"></a></p>
+
+					<h1><span style="color:#008080"><strong>DaMo API</strong></span></h1>
+
+					<hr />
+					<p><a name="_b21"></a></p>
+
+					<p><span style="font-size:14px"><strong>PHP Objects</strong></span></p>
+
+					<hr />
+					<p><span style="color:#6666ff"><strong>Damo</strong></span></p>
+
+					<p>The Damo object is the central player in invoking the utility of DaMo. This object takes a reference to an instance of the Scope object and an xml model (as either a string or a file address). Using the Damo object, the JSON object that is the primary product from this framework&nbsp;is&nbsp;produced. Additionally, Damo provides a means of testing the data returned from the database for specific tags in the xml model (with the use of <a href="http://sadsd">dm-name</a> and/or <a href="http://saddad">dm-class</a> xml directives and Damo&#39;s exucute_query method).</p>
+
+					<p><strong><u>Public Properties:</u></strong></p>
+
+					<table align="center" border="0" cellpadding="5" cellspacing="1" class="funcs-attrs">
+						<tbody>
+							<tr>
+								<td><span style="color:#0000CD">object</span>&nbsp;<em><span style="color:#008080">_scope</span></em></td>
+								<td>&nbsp;Stores the scope object passed to the contructor of object</td>
+							</tr>
+							<tr>
+								<td><span style="color:#0000CD">object </span><span style="color:#008080"><em>xml_doc </em>&nbsp; &nbsp;</span></td>
+								<td>Stores the xml string or file address passed to the contructor of object</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<p><u><strong>Public Methods:</strong></u></p>
+
+					<table align="center" border="0" cellpadding="5" cellspacing="1" class="funcs-attrs">
+						<tbody>
+							<tr>
+								<td><em>contructor</em>(<span style="color:#0000CD">object</span>, <span style="color:#0000CD">string</span>)</td>
+								<td>Takes a scope object and an xml model and returns a damo object</td>
+							</tr>
+							<tr>
+								<td><span style="color:#0000CD">string</span> <em>_JSON</em>(<span style="color:#0000CD">string</span> = <span style="color:#FF8C00">&#39;_li&#39;</span>)</td>
+								<td>Returns a string json model based on the xml model and query information passed to constructor</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<p><u><strong>Inherited Public Methods:</strong></u></p>
+
+					<table align="center" border="0" cellpadding="5" cellspacing="1" class=" funcs-attrs">
+						<tbody>
+							<tr>
+								<td><span style="color:rgb(0, 0, 205)">string</span>&nbsp;DM_initialize::<em>extract_result</em>(<span style="color:rgb(0, 0, 205)">string</span>,&nbsp;<span style="color:rgb(0, 0, 205)">integer&nbsp;</span><span style="color:rgb(0, 0, 0)">=&nbsp;</span><span style="color:rgb(255, 140, 0)">&#39;default&#39;</span>) &nbsp;&nbsp;</td>
+								<td>Returns the result associated with a tag in the xml model labeled by dm-name or dm-class directives</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<hr />
+					<p><span style="color:#6666ff"><strong>Permission_key</strong></span></p>
+
+					<p>An object which stores access information to a specific MySQL database and provides an connection to that database for the DaMo engine. It takes an address, username and password for the database.&nbsp;</p>
+
+					<p><u><strong>Public Properties:</strong></u></p>
+
+					<p>none</p>
+
+					<p><strong><u>Public Methods:</u></strong></p>
+
+					<table align="center" border="0" cellpadding="5" cellspacing="1" class=" funcs-attrs">
+						<tbody>
+							<tr>
+								<td><em>constructor</em>(<span style="color:#0000CD">string</span><span style="color:#000000">,&nbsp;</span><span style="color:#0000CD">string</span><span style="color:#000000">,&nbsp;</span><span style="color:#0000CD">string</span>)</td>
+								<td>Sets the address of, and username and password for the database to be queried</td>
+							</tr>
+							<tr>
+								<td><em>destructor</em>()</td>
+								<td>An addtion on the default destructor that unsets super user privaledges</td>
+							</tr>
+							<tr>
+								<td><span style="color:#0000CD">object&nbsp;</span><em>get_conn</em>()</td>
+								<td>returns a mysqli object connected to the relevant database</td>
+							</tr>
+							<tr>
+								<td><span style="color:#0000CD">string&nbsp;</span><em>get_host</em>()</td>
+								<td>returns a the host address as a string</td>
+							</tr>
+							<tr>
+								<td><span style="color:#0000CD">string</span>&nbsp;<em>get_user</em>()</td>
+								<td>returns the username as a string</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<hr />
+					<p><span style="color:#6666ff"><strong>Scope</strong></span></p>
+
+					<p><span style="color:#000000">The scope object&#39;s primary job is to hold and transport database query information throughout the DaMo program. All information required to move data from the MySQL database to the JSON model is registered by the user to an instance of this object. All the information can then be passed&nbsp;to the DaMo engine by simply referencing an instance of this object.&nbsp;</span></p>
+
+					<p><strong><span style="color:#000000"><u>Public Properites:</u></span></strong></p>
+
+					<table align="center" border="0" cellpadding="5" cellspacing="1" class=" funcs-attrs">
+						<tbody>
+							<tr>
+								<td><span style="color:#0000CD">array</span> <em>dm_bind_types</em></td>
+								<td>holds all the strings indicating the types (string, integer, ect) of the values to be bound to queries</td>
+							</tr>
+							<tr>
+								<td><span style="color:#0000CD">array </span><em>dm_bind_values</em></td>
+								<td>holds all of the arrays containing sets of values to be bound to queries</td>
+							</tr>
+							<tr>
+								<td><span style="color:#0000CD">array</span> <em>dm_perm_keys</em></td>
+								<td>holds references to instances of the permission key object</td>
+							</tr>
+							<tr>
+								<td><span style="color:#0000CD">array</span> <em>dm_queries</em></td>
+								<td>holds MySQL query strings</td>
+							</tr>
+							<tr>
+								<td><span style="color:#0000CD">array</span> <em>dm_result_handler &nbsp; &nbsp; &nbsp;</em></td>
+								<td>holds references to functions that pull and return data from the MySQL result returned by a query</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<p><span style="color:#000000"><strong><u>Public Methods:</u></strong></span></p>
+
+					<table align="center" border="0" cellpadding="5" cellspacing="1" class="funcs-attrs">
+						<tbody>
+							<tr>
+								<td><em>constructor</em>(<span style="color:#0000CD"><em>void</em></span>)</td>
+								<td>no arguments, returns a blank instance of the scope object</td>
+							</tr>
+							<tr>
+								<td><span style="color:#0000CD">object</span> <em>bind_types</em>(<span style="color:#0000CD">array</span>, <span style="color:#0000CD">array</span>)</td>
+								<td>registers to the scope strings describing the types of the values to be bound to a query</td>
+							</tr>
+							<tr>
+								<td><span style="color:#0000CD">object</span> <em>bind_values</em>(<span style="color:#0000CD">array</span>, <span style="color:#0000CD">array</span>)</td>
+								<td>registers arrays of values to bound to queries</td>
+							</tr>
+							<tr>
+								<td><span style="color:#0000CD">object</span> <em>clr</em>(<span style="color:#0000CD">void</span>)</td>
+								<td>clears all data registered to the scope</td>
+							</tr>
+							<tr>
+								<td><span style="color:#0000CD">object</span> <em>perm_key</em>(<span style="color:#0000CD">array</span>, <span style="color:#0000CD">array</span>)</td>
+								<td>registers Permission_key objects into the scope</td>
+							</tr>
+							<tr>
+								<td><span style="color:#0000CD">object</span> <em>query</em>(<span style="color:#0000CD">array</span>, <span style="color:#0000CD">array</span>)</td>
+								<td>registers MySQL queries into the scope</td>
+							</tr>
+							<tr>
+								<td><span style="color:#0000CD">object</span> <em>result_handler</em>(<span style="color:#0000CD">mixed</span>, <span style="color:#0000CD">mixed</span>) &nbsp; &nbsp; &nbsp;</td>
+								<td>registers to the scope references to result handling function</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<hr />
+					<p><a name="_b22"></a></p>
+
+					<p><span style="font-size:14px"><strong>XML Tags</strong></span></p>
+
+					<hr />
+					<p><span style="color:#6666ff"><strong>_li</strong></span></p>
+
+					<p><span style="color:#000000">An element designed to tell the DaMo JSON building engine to create an indexed list under this element&#39;s&nbsp;parent element. The presence of an&nbsp;<em>_li&nbsp;</em>tag will automatically override the presence of it&#39;s non _li sibling tags. Once a single _li is used none of the sibling elements&nbsp;will be included in the JSON indexed list, except other _li elements. The example below demonstrates the use of the _li tag. Please note that the tagname used for this functionality can be changed from &quot;_li&quot; to a user specified name by adding the desired name as an argument to the <a href="http://afafaf"><em>_JSON</em></a> method of the <a href="http://afddafadfadf"><em>Damo</em></a><em> </em>object.</span></p>
+
+					<p><span style="color:#000000">A non-indexed set of children under a parent xml element is rendered to JSON as follows:</span></p>
+
+					<div class="code-block"><u>xml model:</u><br />
+					<strong><span style="color:#0000CD">&lt;usernames&gt;</span><br />
+					&nbsp; &nbsp; &nbsp;<span style="color:#0000CD">&lt;uname1</span> <span style="color:#000080">dm-result-handler</span></strong>=<span style="color:#FF8C00">&quot;one&quot;</span><strong><span style="color:#0000CD">&gt;&lt;/uname1&gt;</span><br />
+					&nbsp; &nbsp; &nbsp;<span style="color:#0000CD">&lt;uname2</span> <span style="color:#000080">dm-result-handler</span></strong>=<span style="color:#FF8C00">&quot;two&quot;</span><strong><span style="color:#0000CD">&gt;&lt;/uname2&gt;</span><br />
+					&nbsp; &nbsp; <span style="color:#0000CD">&nbsp;&lt;uname3</span> <span style="color:#000080">dm-result-handler</span></strong>=<span style="color:#FF8C00">&quot;three&quot;</span><strong><span style="color:#0000CD">&gt;&lt;/uname3&gt;</span><br />
+					<span style="color:#0000CD">&lt;/usernames&gt;</span></strong>
+
+					<hr /> <span style="color:#000000"><u>JSON result:</u></span><br />
+					<span style="color:#000000">{usernames:{uname1: &quot;one_result&quot;, uname2: &quot;two_result&quot;, uname3: &quot;three_result&quot;}}</span></div>
+
+					<p>On the other hand a more brevity concious method of producing a JSON model might call for an indexed list (a list referenced using integers). Producing one of these is a simple procedure:</p>
+
+					<div class="code-block">
+					<p><u>xml model:</u><br />
+					<strong><span style="color:rgb(0, 0, 205)">&lt;usernames&gt;</span><br />
+					&nbsp; &nbsp; &nbsp;<span style="color:rgb(0, 0, 205)">&lt;_li</span>&nbsp;<span style="color:rgb(0, 0, 128)">dm-result-handler</span></strong>=<span style="color:rgb(255, 140, 0)">&quot;one&quot;</span><strong><span style="color:rgb(0, 0, 205)">&gt;&lt;/_li&gt;</span><br />
+					&nbsp; &nbsp; &nbsp;<span style="color:rgb(0, 0, 205)">&lt;_li</span>&nbsp;<span style="color:rgb(0, 0, 128)">dm-result-handler</span></strong>=<span style="color:rgb(255, 140, 0)">&quot;two&quot;</span><strong><span style="color:rgb(0, 0, 205)">&gt;&lt;/_li&gt;</span><br />
+					&nbsp; &nbsp;&nbsp;<span style="color:rgb(0, 0, 205)">&nbsp;&lt;_li</span>&nbsp;<span style="color:rgb(0, 0, 128)">dm-result-handler</span></strong>=<span style="color:rgb(255, 140, 0)">&quot;three&quot;</span><strong><span style="color:rgb(0, 0, 205)">&gt;&lt;/_li&gt;</span><br />
+					<span style="color:rgb(0, 0, 205)">&lt;/usernames&gt;</span></strong></p>
+
+					<hr />
+					<p><span style="color:rgb(0, 0, 0)"><u>JSON result:</u></span><br />
+					<span style="color:rgb(0, 0, 0)">{usernames:[&nbsp;&quot;one_result&quot;, &quot;two_result&quot;, &quot;three_result&quot;]}</span></p>
+					</div>
+
+					<p>&nbsp;</p>
+
+					<p>If however, we only changed one of the child tags of &quot;usernames&quot; to an _li we would lose parts of our xml data model in the conversion to JSON:</p>
+
+					<div class="code-block">
+					<p><u>xml model:</u><br />
+					<strong><span style="color:rgb(0, 0, 205)">&lt;usernames&gt;</span><br />
+					&nbsp; &nbsp; &nbsp;<span style="color:rgb(0, 0, 205)">&lt;uname1</span>&nbsp;<span style="color:rgb(0, 0, 128)">dm-result-handler</span></strong>=<span style="color:rgb(255, 140, 0)">&quot;one&quot;</span><strong><span style="color:rgb(0, 0, 205)">&gt;&lt;/uname1&gt;</span><br />
+					&nbsp; &nbsp; &nbsp;<span style="color:rgb(0, 0, 205)">&lt;_li</span>&nbsp;<span style="color:rgb(0, 0, 128)">dm-result-handler</span></strong>=<span style="color:rgb(255, 140, 0)">&quot;two&quot;</span><strong><span style="color:rgb(0, 0, 205)">&gt;&lt;/_li&gt;</span><br />
+					&nbsp; &nbsp;&nbsp;<span style="color:rgb(0, 0, 205)">&nbsp;&lt;uname3</span>&nbsp;<span style="color:rgb(0, 0, 128)">dm-result-handler</span></strong>=<span style="color:rgb(255, 140, 0)">&quot;three&quot;</span><strong><span style="color:rgb(0, 0, 205)">&gt;&lt;/uname3&gt;</span><br />
+					<span style="color:rgb(0, 0, 205)">&lt;/usernames&gt;</span></strong></p>
+
+					<hr />
+					<p><span style="color:rgb(0, 0, 0)"><u>JSON result:</u></span><br />
+					<span style="color:rgb(0, 0, 0)">{usernames:[&nbsp;&quot;two_result&quot;]}</span></p>
+					</div>
+
+					<hr />
+					<p><a name="_b23"></a></p>
+
+					<p><span style="font-size:14px"><strong>XML Attributes</strong></span></p>
+
+					<hr />
+					<p><span style="color:#6666ff"><strong>dm-bind-array</strong></span></p>
+
+					<p>This directive defines the&nbsp;array that&nbsp;the DaMo JSON building engine uses to get values to bind to the relevant MySQL query. Specifically, it takes a name (as a string) associated with an array in the&nbsp;<a href="http://dfadfdafad">Scope</a> object&#39;s <a href="http://adfafdafad">dm_bind_array</a> (registered with the Scope object&#39;s <a href="http://dfafdafadf">bind_values</a>&nbsp;method).</p>
+
+					<hr />
+					<p><strong><span style="color:#6666ff">dm-bind-str</span> (will be deprecated in a future version)</strong></p>
+
+					<p><span style="color:#000000">This directive defines the string associated with a specific array of bind values. In order for the <a href="http://adfsadsad">bind_param</a> method&nbsp;of the PHP&nbsp;<a href="http://sdadasdasdasd">Mysqli_stmt</a>&nbsp;class&nbsp;to effectively bind values from the bind array to marked points in a query, this string is necessary. The attribute takes a name associated with a dm_bind_str value registered to the Scope object. For more information on the specifics of bind strings see either the section on&nbsp;the <a href="http://sadads">bind_types</a> method of the <a href="http://sadasdasda">Scope</a>&nbsp;class&nbsp;or the official <a href="http://aadasadasd">PHP Documentation</a> on the <a href="http://dafafdfff">bind_param</a> method of the <a href="http://sdadsadasdada">Mysqli_stmt</a> class.</span></p>
+
+					<hr />
+					<p><span style="color:#6666ff"><strong>dm-class</strong></span></p>
+
+					<p>This directive is used for labeling multiple&nbsp;points in the xml model&nbsp;so that the data that is bound to the model at these&nbsp;point can be easily tested for and used for applications if necessary. The <a href="http://axdSFAD">extract_result</a>&nbsp;method inherited by the <a href="http://fdafadfdafda">Damo</a> class is the&nbsp;means of accessing data by this naming/labeling system. One addtional note is that the <a href="http://safdasfdafadf">dm-name</a>&nbsp;directive is turned to dm-class directive when the element containing dm-name is reproduced multiple times, by the <a href="http://sadsadsadasdad">dm-repeat</a> directive. See the example in the section on <a href="http://sdasdsadsadsa">dm-repeat</a>&nbsp;for a demonstration on this&nbsp;conversion&nbsp;of <a href="http://asdasdasdsadads">dm-name</a> to dm-class.</p>
+
+					<hr />
+					<p><span style="color:#6666ff"><strong>dm-name</strong></span></p>
+
+					<p>This directive is used for labeling a single point in the xml model so that the data bound to the model at this point can be easily tested for and used in applications if necessary.&nbsp;The&nbsp;<a href="http://axdSFAD" style="line-height: 20.8px;">extract_result</a>&nbsp;method inherited by the&nbsp;<a href="http://fdafadfdafda" style="line-height: 20.8px;">Damo</a>&nbsp;class is the&nbsp;means of accessing data by this naming/labeling system.&nbsp;One addtional note is that this&nbsp;directive is turned to <a href="http://adfadfafafa">dm-class</a> directive when the element containing dm-name is reproduced multiple times, by the&nbsp;<a href="http://sadsadsadasdad" style="line-height: 20.8px;">dm-repeat</a>&nbsp;directive. See the example in the section on&nbsp;<a href="http://sdasdsadsadsa" style="line-height: 20.8px;">dm-repeat</a>&nbsp;for a demonstration on this&nbsp;conversion&nbsp;of&nbsp;dm-name&nbsp;to&nbsp;<a href="http://sadaadafaf" style="line-height: 20.8px;">dm-class</a>. Please note that if the same value is used for a multiple dm-name directives in an xml model, the&nbsp;</p>
+
+					<hr />
+					<p><span style="color:#6666ff"><strong>dm-perm-key</strong></span></p>
+
+					<p>This directive holds&nbsp;the address of the MySQL databases to be queried. It takes a name, as a string, of a <a href="http://adfafafda">Permission_key</a> object registered with the <a href="http://dadasdsadasd">Scope</a> class&#39;s <a href="http://adfafassdad">perm_key</a> method. In many cases, this directive will be used once with the root element of a given xml model. If, however, the data for a single model comes from multiple servers, then it will necessarily have to be used more than once.</p>
+
+					<hr />
+					<p><strong><span style="color:#6666ff">dm-query</span></strong></p>
+
+					<p><span style="color:#000000">This directive registers the result of a specific query to the xml data model. The value passed to it is the name associated with a query registered to a <a href="http://fdafdafdaf">Scope</a> object with the <a href="http://adfdafadfdaf">query</a> method. The use of this directive must be accompanied by&nbsp;valid <a href="http://dfafadfadf">dm-bind-str</a>&nbsp;and <a href="http://adfadfdafda">dm-bind-array</a> directives if the query has places in it for binding values. These points are seen as question marks in the query string.&nbsp;</span></p>
+
+					<hr />
+					<p><span style="color:#6666ff"><strong>dm-query-point</strong></span></p>
+
+					<p>This directive tell the DaMo querying engine where to get data from. At the points this is used in the model, the querying engine searches out the nearest dm-query, dm-perm-key, dm-bind-str, and dm-bind-array directives up the xml DOM tree (toward parent elements). It uses the values stored in these to perform a query of the database and store the result. The result, which is a 2-dimensional array, is then associated with this query point. A user specified name may be stored in this directive, but it is easiest to just pass an empty string. The DaMo querying engine will assign a name to the point. This name is then used by the DaMo JSON bulding engine to determine which data model to pass to a result handler. In other words, no&nbsp;<a href="http://sdafasfdaf">dm-result-handler</a> directives can be registered to the xml model before a dm-query-point directive. On the other side of things a dm-query-point directive included before there is a registered <a href="http://afdadfaffafa">dm-perm-key</a> and and <a href="http://adfdafdafad">dm-query</a>&nbsp;directive (along with accompanying <a href="http://aadasdsadsa">dm-bind-str</a> and <a href="http://fadfafadfad">dm-bind-array</a> directives) will fail.</p>
+
+					<hr />
+					<p><span style="color:#6666ff"><strong>dm-repeat</strong></span></p>
+
+					<p>This directive may be the most dynamic and interesting of all directives in the DaMo xml language. It is comparable in function to the <a href="http://asdasdsadas">AngularJS</a>&nbsp;<a href="http://dasdadasdas">ng-repeat</a>&nbsp;directive, but takes an integer value (passed as a string) instead of an array and key names. An example of the proper use of this directive is shown below.</p>
+
+					<div class="code-block"><br />
+					<span style="color:#0000CD"><strong>&lt;usernames </strong></span><span style="color:#000080"><strong>dm-repeat</strong></span><span style="color:#000000">=</span><span style="color:#FF8C00">&quot;3&quot;</span><span style="color:#0000CD"><strong>&gt;</strong></span><br />
+					<span style="color:#0000CD"><strong>&nbsp; &nbsp; &nbsp;&lt;uname </strong></span><span style="color:#000080"><strong>dm-name</strong></span><span style="color:#000000">=</span><span style="color:#FF8C00">&quot;names&quot; </span><span style="color:#000080"><strong>dm-result-handler</strong></span><span style="color:#000000">=</span><span style="color:#FF8C00">&quot;rh3&quot;</span><span style="color:#0000CD"><strong>&gt;&lt;/uname&gt;</strong></span><br />
+					<span style="color:#0000CD"><strong>&nbsp; &nbsp; &nbsp;&lt;age </strong></span><span style="color:#000080"><strong>dm-result-handler</strong></span><span style="color:#000000">=</span><span style="color:#FF8C00">&quot;rh4&quot;</span><span style="color:#0000CD"><strong>&gt;&lt;/age&gt;</strong></span><br />
+					<span style="color:#0000CD"><strong>&lt;/usernames&gt;</strong></span><br />
+					&nbsp;</div>
+
+					<p>The DaMo repeater engine, called with the <a href="http://fdasfasdasd">Damo</a> class <a href="http://adadasdasdasd">constructor</a>&nbsp;rebuilds the Damo model based on the dm-repeat directive. The reconstructed model is as follows;</p>
+
+					<div class="code-block"><br />
+					<span style="color:rgb(0, 0, 205)"><strong>&lt;usernames</strong></span><span style="color:rgb(0, 0, 205)"><strong>&gt;</strong></span><br />
+					<span style="color:rgb(0, 0, 205)"><strong>&nbsp;&nbsp; &nbsp; &lt;_li </strong></span><span style="color:#000080"><strong>iter</strong></span><span style="color:#000000">=</span><span style="color:#FF8C00">&quot;0&quot;</span><span style="color:rgb(0, 0, 205)"><strong>&gt;</strong></span><br />
+					<span style="color:rgb(0, 0, 205)"><strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;uname&nbsp;</strong></span><span style="color:rgb(0, 0, 128)"><strong>dm-class</strong></span><span style="color:rgb(0, 0, 0)">=</span><span style="color:rgb(255, 140, 0)">&quot;names&quot;&nbsp;</span><span style="color:rgb(0, 0, 128)"><strong>dm-result-handler</strong></span><span style="color:rgb(0, 0, 0)">=</span><span style="color:rgb(255, 140, 0)">&quot;rh3&quot;</span><span style="color:rgb(0, 0, 205)"><strong>&gt;&lt;/uname&gt;</strong></span><br />
+					<span style="color:rgb(0, 0, 205)"><strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;age&nbsp;</strong></span><span style="color:rgb(0, 0, 128)"><strong>dm-result-handler</strong></span><span style="color:rgb(0, 0, 0)">=</span><span style="color:rgb(255, 140, 0)">&quot;rh4&quot;</span><span style="color:rgb(0, 0, 205)"><strong>&gt;&lt;/age&gt;</strong></span><br />
+					<span style="color:rgb(0, 0, 205)"><strong>&nbsp;&nbsp; &nbsp; &lt;/_li&gt;</strong></span><br />
+					<span style="color:rgb(0, 0, 205)"><strong>&nbsp; &nbsp; &nbsp;&lt;_li </strong></span><span style="color:#000080"><strong>iter</strong></span><span style="color:rgb(0, 0, 0)">=</span><span style="color:rgb(255, 140, 0)">&quot;1&quot;</span><span style="color:rgb(0, 0, 205)"><strong>&gt;</strong></span><br />
+					<span style="color:rgb(0, 0, 205)"><strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;uname&nbsp;</strong></span><span style="color:rgb(0, 0, 128)"><strong>dm-class</strong></span><span style="color:rgb(0, 0, 0)">=</span><span style="color:rgb(255, 140, 0)">&quot;names&quot;&nbsp;</span><span style="color:rgb(0, 0, 128)"><strong>dm-result-handler</strong></span><span style="color:rgb(0, 0, 0)">=</span><span style="color:rgb(255, 140, 0)">&quot;rh3&quot;</span><span style="color:rgb(0, 0, 205)"><strong>&gt;&lt;/uname&gt;</strong></span><br />
+					<span style="color:rgb(0, 0, 205)"><strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;age&nbsp;</strong></span><span style="color:rgb(0, 0, 128)"><strong>dm-result-handler</strong></span><span style="color:rgb(0, 0, 0)">=</span><span style="color:rgb(255, 140, 0)">&quot;rh4&quot;</span><span style="color:rgb(0, 0, 205)"><strong>&gt;&lt;/age&gt;</strong></span><br />
+					<span style="color:rgb(0, 0, 205)"><strong>&nbsp;&nbsp; &nbsp; &lt;/_li&gt;</strong></span><br />
+					<span style="color:rgb(0, 0, 205)"><strong>&nbsp; &nbsp; &nbsp;&lt;_li </strong></span><span style="color:#000080"><strong>iter</strong></span><span style="color:rgb(0, 0, 0)">=</span><span style="color:rgb(255, 140, 0)">&quot;2&quot;</span><span style="color:rgb(0, 0, 205)"><strong>&gt;</strong></span><br />
+					<span style="color:rgb(0, 0, 205)"><strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;uname&nbsp;</strong></span><span style="color:rgb(0, 0, 128)"><strong>dm-class</strong></span><span style="color:rgb(0, 0, 0)">=</span><span style="color:rgb(255, 140, 0)">&quot;names&quot;&nbsp;</span><span style="color:rgb(0, 0, 128)"><strong>dm-result-handler</strong></span><span style="color:rgb(0, 0, 0)">=</span><span style="color:rgb(255, 140, 0)">&quot;rh3&quot;</span><span style="color:rgb(0, 0, 205)"><strong>&gt;&lt;/uname&gt;</strong></span><br />
+					<span style="color:rgb(0, 0, 205)"><strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &lt;age&nbsp;</strong></span><span style="color:rgb(0, 0, 128)"><strong>dm-result-handler</strong></span><span style="color:rgb(0, 0, 0)">=</span><span style="color:rgb(255, 140, 0)">&quot;rh4&quot;</span><span style="color:rgb(0, 0, 205)"><strong>&gt;&lt;/age&gt;</strong></span><br />
+					<span style="color:rgb(0, 0, 205)"><strong>&nbsp;&nbsp; &nbsp; &lt;/_li&gt;</strong></span><br />
+					<span style="color:rgb(0, 0, 205)"><strong>&lt;/usernames&gt;</strong></span><br />
+					&nbsp;</div>
+
+					<p>Note how the model was rebuilt as a list of associative arrays under the name &quot;usernames&quot;. The <a href="http://dfwfadfadff">dm-name</a> was converted to the&nbsp;<a href="http://dasdadsad">dm-class</a>&nbsp;directive and the added &quot;_li&quot;&nbsp;elements have an <a href="http://sdsadsadasd">iter</a>&nbsp;directive/attribute associated with them. In short, the <a href="http://sdsadasdsad">iter</a>&nbsp;directive tells the JSON building engine what iteration integer to pass to the result handlers. It is a means to using one reuslt handler to fill many points in the data model.&nbsp;</p>
+
+					<hr />
+					<p><span style="color:#6666ff"><strong>dm-result-handler</strong></span></p>
+
+					<p>This directive puts the control over what part of a query result is included in the JSON model in the hands of the user. The dm-result-handler directive&nbsp;takes the name of a result handling function registered to an instance of&nbsp;the <a href="http://adadsadsad">Scope</a> class with the class&#39;s <a href="http://gfgjjjgjg">result-handler</a> function. The use of this directive&nbsp;is the final step in getting a piece of data bound to the xml, and thus JSON model. When the JSON building engine gets to this directive is calls the function associated with the name stored in this&nbsp;directive. It passes to the function a query result&nbsp;associated with the closest&nbsp;<a href="http://addssadasdas">dm-query-point</a> and an iteration number. If the JSON building engine&nbsp;finds a set&nbsp;<a href="http://asdasdsadsa">iter</a>&nbsp;directive somewhere up the DOM tree, it passes the value stored in <a href="http://adasdasda">iter</a>&nbsp;to the result handler&#39;s iteration number argument. If not, the default value of 0 gets passed to this iteration number argument.</p>
+
+					<hr />
+					<p><span style="color:#6666ff"><strong>iter</strong></span></p>
+
+					<p>This directive can be used with the xml element indicating a list (the default is <a href="http://adadasd">_li</a>). It takes an integer passed to it as a string and indicates the integer value to be passed to the argument of the result hundler functions registered in the xml model under it.</p>
+
+					<hr />
+					<h1 class="pop-up-box"><span style="color:#008080"><strong>Download DaMo</strong></span></h1>
+
+					<p><a class="fl-inline-anchors" href="../../DaMo.txt" style="text-decoration: none"><span style="color:#008080; font-size: 1.2em">DaMo.min.php</span></a></p>
+
+				</div>
+				<div class='div-extender'></div>
+			</div>
+			<div class='div-extender'></div>
+			<br class="wrapper-extender">
+			<span> &copy 2016, Joshua D. Glazer</span>
+			<br class="wrapper-extender">
+		</div>
+		<script src="../../src/js/fluidNavigation.js"></script>
+		<script>
+		    var ajax = new XMLHttpRequest();
+		    ajax.open("POST", "html/test-collect-inlines.html", true);
+		    ajax.onreadystatechange = function() {
+			    if( ajax.readyState == 4 ) {
+				    document.getElementById('tester').innerHTML = ajax.response;
+			    }
+			    else {
+				    document.getElementById('tester').innerHTML = ajax.response;
+			    }
+		    }
+		
+		    ajax.send(null);
+
+	        var tools = new MenuConstructionEngine();
+	        var anchors = tools.collectInlineAnchors( document );
+	        //primary test results
+	        alert( anchors.length);
+		</script>
+	</body>
+</html>
