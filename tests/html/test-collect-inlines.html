@@ -551,7 +551,7 @@
 					<hr />
 					<p><span style="color:#6666ff"><strong>dm-repeat</strong></span></p>
 
-					<p>This directive may be the most dynamic and interesting of all directives in the DaMo xml language. It is comparable in function to the <a href="http://asdasdsadas">AngularJS</a>&nbsp;<a href="http://dasdadasdas">ng-repeat</a>&nbsp;directive, but takes an integer value (passed as a string) instead of an array and key names. An example of the proper use of this directive is shown below.</p>
+					<p>This directive may be the most dynamic and interesting of all directives in the DaMo xml language. It is comparable in function to the <a class="fl-inline-anchors" id="checker" fl-parent="hello world" href="http://asdasdsadas">AngularJS</a>&nbsp;<a href="http://dasdadasdas">ng-repeat</a>&nbsp;directive, but takes an integer value (passed as a string) instead of an array and key names. An example of the proper use of this directive is shown below.</p>
 
 					<div class="code-block"><br />
 					<span style="color:#0000CD"><strong>&lt;usernames </strong></span><span style="color:#000080"><strong>dm-repeat</strong></span><span style="color:#000000">=</span><span style="color:#FF8C00">&quot;3&quot;</span><span style="color:#0000CD"><strong>&gt;</strong></span><br />
@@ -594,7 +594,7 @@
 					<hr />
 					<h1 class="pop-up-box"><span style="color:#008080"><strong>Download DaMo</strong></span></h1>
 
-					<p><a class="fl-inline-anchors" href="../../DaMo.txt" style="text-decoration: none"><span style="color:#008080; font-size: 1.2em">DaMo.min.php</span></a></p>
+					<p><a href="../../DaMo.txt" style="text-decoration: none"><span style="color:#008080; font-size: 1.2em">DaMo.min.php</span></a></p>
 
 				</div>
 				<div class='div-extender'></div>
@@ -607,7 +607,7 @@
 		<script src="../../src/js/fluidNavigation.js"></script>
 		<script>
 		    var ajax = new XMLHttpRequest();
-		    ajax.open("POST", "html/test-collect-inlines.html", true);
+		    ajax.open("POST", "test-collect-inlines.html", true);
 		    ajax.onreadystatechange = function() {
 			    if( ajax.readyState == 4 ) {
 				    document.getElementById('tester').innerHTML = ajax.response;
@@ -621,8 +621,20 @@
 
 	        var tools = new MenuConstructionEngine();
 	        var anchors = tools.collectInlineAnchors( document );
-	        //primary test results
-	        alert( anchors.length);
+	    //primary test results
+	        //testing function getAnchorId
+	        alert( tools.getAnchorId( anchors[1] ) );
+	        //testing function anchorIdToTitle
+	        alert( tools.anchorIdToTitle( "closer-to_me-than you think p") );
+	        //testing function getAnchorParent
+	        alert( tools.getAnchorParent( anchors[1] ) );
+	        
+	        //testing function anchorChildrenInit
+	        tools.anchorChildrenInit( anchors );
+	        anchors[1].children_elements.push( "hello world again!" );
+	        alert( anchors[1].children_elements[0] );
+	        
+	        //testing function
 		</script>
 	</body>
 </html>
