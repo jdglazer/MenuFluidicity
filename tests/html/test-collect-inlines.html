@@ -642,8 +642,12 @@
 	        
 	            tools.anchorChildrenPopulate( anchors );
 	            var els = tools.getElementsById( anchors, "This-is-an-anchor" );
-	            alert( els[0][fl_childReferenceArray].length );
+	            //alert( els[0][fl_childReferenceArray].length );
 	            
+	        //testing the menu construction engine object; in particular the object's construct method is being tested
+	            var mce = new MenuConstructionEngine();
+	            mce.construct( new MenuModelConstructionEngine(), document);
+	            alert( mce.anchorModel.length );
 		</script>
 	</body>
 </html>

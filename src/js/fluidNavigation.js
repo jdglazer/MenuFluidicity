@@ -113,7 +113,7 @@ var MCEProto = MenuConstructionEngine.prototype = {
             return false;
             
     //aliasing long variable name to something shorter
-        var mmmce = menu_model_const_engine;
+        var mmce = menu_model_const_engine;
         
         this.anchorModel = mmce.collectInlineAnchors( document );
         
@@ -225,33 +225,35 @@ var MMCEProto = MenuModelConstructionEngine.prototype = {
             
             var a = anchorArray[l];
             
+            if( fl_childReferenceArray in a) {
         //makes sure that the child reference array is present in anchor element
-            if( "push" in a[ fl_childReferenceArray ] ) {
-               
-            //stores string name of parent to current anchor
-                var parent_ = this.getAnchorParent( a );
-                
-                if( parent_ != null ) {
+                if( "push" in a[ fl_childReferenceArray ] ) {
+                   
+                //stores string name of parent to current anchor
+                    var parent_ = this.getAnchorParent( a );
                     
-                //stores a list (as an array of course, how else? ) of parent anchor element(s) for current anchor
-                    var parent_elements = this.getElementsById( anchorArray, parent_ );
-                    
-                //makes sure parent_elements is not null and is an array
-                    if( fl_arrayLike( parent_elements) ) {
-                    
-                    //passes reference of anchor element to all its parents
-                        for( var p = 0; p < parent_elements.length; p++ ) {
-                            
-                        //verifies that anchor's parent element has a child reference array
-                            if( fl_arrayLike( parent_elements[p][ fl_childReferenceArray ] )  ) {
-                            
-                            //All checks complete -> anchor element is added to parent elements child list
-                                parent_elements[p][ fl_childReferenceArray ].push( a );
+                    if( parent_ != null ) {
+                        
+                    //stores a list (as an array of course, how else? ) of parent anchor element(s) for current anchor
+                        var parent_elements = this.getElementsById( anchorArray, parent_ );
+                        
+                    //makes sure parent_elements is not null and is an array
+                        if( fl_arrayLike( parent_elements) ) {
+                        
+                        //passes reference of anchor element to all its parents
+                            for( var p = 0; p < parent_elements.length; p++ ) {
+                                
+                            //verifies that anchor's parent element has a child reference array
+                                if( fl_arrayLike( parent_elements[p][ fl_childReferenceArray ] )  ) {
+                                
+                                //All checks complete -> anchor element is added to parent elements child list
+                                    parent_elements[p][ fl_childReferenceArray ].push( a );
+                                }
                             }
                         }
                     }
+                    
                 }
-                
             }
         }
         
