@@ -43,11 +43,15 @@ var MTSProto = MenuTagBuilder.prototype = {
 /**
  * Identifies the type of object as MenuTagSpecs 
  */
-    CLASS_NAME: "MenuTagSpecs",
+    CLASS_NAME: "MenuTagBuilder",
 /**
  * The tag name to be created
  */
     TAG_NAME: "",
+/**
+ * The text within the tag not belonging to any child elements
+ */
+    TEXT_CONTENT: null,
     
 /**
  * a list of attributes for the element created where the keys are attribute names and the values are attribute values
@@ -55,36 +59,35 @@ var MTSProto = MenuTagBuilder.prototype = {
     TAG_PROPERTIES: [],
     
 /**
- * A function that builds element from the information stored in this objects properties
+ * A function that builds element from the information stored in this object's properties
  */
     buildTag: function(document) {
-    
+	//code to verify ability to create element
         if( !"createElement" in document )
             return false;
-        
+
         var newElement = document.createElement( this.TAG_NAME );
-        
-        if( !"setAttribute" in newElement )
+    //code to verify that element created is valud
+        if( !"setAttribute" in newElement || !fl_isObj( this.TAG_PROPERTIES ) )
             return false;
-            
-        if( !fl_arrayLike( this.TAG_PROPERTIES ) )
-            return false;
-            
-        //SHOULD ADD CODE TO HERE TO MAKE SURE keys FUNCTION IS IN TAG_PROERTIES OR CODE IN fl_arrayLike GLOBAL FUNCTION TO CHECK FOR keys
-        //FUNCTION UNIVERSALLY
-        var property_names = this.TAG_PROPERTIES.keys();
-        
-        for( var i =0; i < property_names.length; i++ ) {
-        
-            var pn = property_names[i];
+	//adds properties to element
+        for( var pn in this.TAG_PROPERTIES ) {
             
             if( typeof pn == "string" )         
                 newElement.setAttribute( pn, this.TAG_PROPERTIES[ pn ] );
         }
-        
+	//adds text node to element
+        if( typeof this.TEXT_CONTENT == "string" && "createTextNode" in document && "appendChild" in newElement ) {
+			
+			var txtNode = document.createTextNode( this.TEXT_CONTENT );
+			
+			newElement.appendChild( txtNode );
+
+		}
+			
         return newElement;
             
-    }    
+    }   
 };
 
 //********************************************* DEFINES, ALIASES: MenuConstructionEngine prototype **********************************8
@@ -94,6 +97,10 @@ var MCEProto = MenuConstructionEngine.prototype = {
  */
  
     CLASS_NAME: "MenuConstructionEngine",
+/**
+ * The name of the new property of anchor elements that will store the associated list element to be displayed in menu 
+ */
+    ANCHOR_LIST_ELEMENT_STORAGE_PROPERTY: "li_element",
 /**
  * list of all anchor elements with children elements filled in
  */
@@ -120,7 +127,29 @@ var MCEProto = MenuConstructionEngine.prototype = {
         if( mmce.anchorChildrenInit( this.anchorModel ) )
             mmce.anchorChildrenPopulate( this.anchorModel );
         
-    }
+    },
+/**
+ * creates a new html list element of format <li><a></a></li> for each anchor in anchorModel array and stores it in newly added "li_element" 
+ * property of each anchor
+ */ 
+    createAnchorListElements: function( document ) {
+		
+		if( !"CLASS_NAME" in menu_model_const_engine || !"getElementsByTagName" in document )
+            return false;
+	
+	//A pool instance of MenuTagBuilder to be re-used to build DOM elements
+		var elementBuilder = new MenuTagBuilder();
+/** PICK UP HERE: NEED TO PARSE THROUGH anchorModel LIST CREATING DOM LI ELEMENT FOR EACH ANCHOR AND STORING IT IN NEW PROPERTY OF ANCHOR ELEMENT **/
+/**/		for( var iter in this.anchorModel ) {																								 /**/
+/**/																																			 /**/
+/**/			var anchor = this.anchorModel[ iter ];																							 /**/
+/**/																																			 /**/	
+/**/																																			 /**/		
+/**/		}																																	 /**/
+/***************************************************************************************************************************************************/
+		delete MenuTagBuilder;
+		
+	}
 };
 
 // ********************************************* DEFINES, ALIASES: MenuModelConstructionEngine prototype ********************************8 
@@ -285,4 +314,3 @@ var MMCEProto = MenuModelConstructionEngine.prototype = {
     
 }
 // ******************************************************************************************************************************
-

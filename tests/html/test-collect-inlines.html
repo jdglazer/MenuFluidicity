@@ -647,7 +647,16 @@
 	        //testing the menu construction engine object; in particular the object's construct method is being tested
 	            var mce = new MenuConstructionEngine();
 	            mce.construct( new MenuModelConstructionEngine(), document);
-	            alert( mce.anchorModel.length );
+	            //alert( mce.anchorModel.length );
+	            
+	       //Test buildTag function of the MenuTagBuilder object
+				var mtb = new MenuTagBuilder();
+				mtb.TAG_PROPERTIES = { "id": "Joshua", "ITS":2, "ME":3 };
+				mtb.TAG_NAME = "ul";
+				mtb.TEXT_CONTENT ="hello world!";
+				var ulTag = mtb.buildTag( document );
+				//alert( ulTag.textContent );
+				
 		</script>
 	</body>
 </html>
