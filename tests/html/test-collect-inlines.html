@@ -644,9 +644,12 @@
 	            var els = tools.getElementsById( anchors, "This-is-an-anchor" );
 	            //alert( els[0][fl_childReferenceArray].length );
 	            
-	        //testing the menu construction engine object; in particular the object's construct method is being tested
-	            var mce = new MenuConstructionEngine();
-	            mce.construct( new MenuModelConstructionEngine(), document);
+	        //testing the menu construction engine object; in particular the object's construct  and createANchorListElements methods is being tested
+	            var mce = new MenuConstructionEngine(),
+					mmce = new MenuModelConstructionEngine();
+	            alert( mce.construct( mmce, document ) );
+	            //mce.createAnchorListElements( mmce, document );
+	            //alert ( mce.anchorModel[0][ mce.ANCHOR_LIST_ELEMENT_STORAGE_PROPERTY ].childNodes.length );
 	            //alert( mce.anchorModel.length );
 	            
 	       //Test buildTag function of the MenuTagBuilder object
@@ -656,6 +659,8 @@
 				mtb.TEXT_CONTENT ="hello world!";
 				var ulTag = mtb.buildTag( document );
 				//alert( ulTag.textContent );
+				
+				
 				
 		</script>
 	</body>

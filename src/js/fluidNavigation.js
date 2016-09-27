@@ -5,7 +5,9 @@ var fl_anchor ="a",
     fl_menuTag = "ul",
     fl_menuElementTag = "li",
     fl_anchorClass="fl-inline-anchors",
-    fl_parentAttributeName = "fl-parent", 
+    fl_parentAttributeName = "fl-parent",
+//the attribute in the constructed menu list elements that identifies the id of the associated anchor in the page
+    fl_liPositionAttributeName = "fl-id",
     fl_childReferenceArray ="children_elements",
     fl_Regex_anchorIdSpacer = /_|-/i;
     
@@ -57,7 +59,15 @@ var MTSProto = MenuTagBuilder.prototype = {
  * a list of attributes for the element created where the keys are attribute names and the values are attribute values
  */
     TAG_PROPERTIES: [],
-    
+/**
+ * A function that allows for the setting of all important properties in the object with a single line of code
+ */
+    setAll: function( name, txt, properties ) {
+		
+		this.TAG_NAME = name;
+		this.TEXT_CONTENT = txt;
+		this.TAG_PROPERTIES = properties;
+	},
 /**
  * A function that builds element from the information stored in this object's properties
  */
@@ -65,21 +75,24 @@ var MTSProto = MenuTagBuilder.prototype = {
 	//code to verify ability to create element
         if( !"createElement" in document )
             return false;
+            
+    //aliasing a reference to functions parent object
+        var T = this;
 
-        var newElement = document.createElement( this.TAG_NAME );
+        var newElement = document.createElement( T.TAG_NAME );
     //code to verify that element created is valud
-        if( !"setAttribute" in newElement || !fl_isObj( this.TAG_PROPERTIES ) )
+        if( !"setAttribute" in newElement || !fl_isObj( T.TAG_PROPERTIES ) )
             return false;
 	//adds properties to element
-        for( var pn in this.TAG_PROPERTIES ) {
+        for( var pn in T.TAG_PROPERTIES ) {
             
             if( typeof pn == "string" )         
-                newElement.setAttribute( pn, this.TAG_PROPERTIES[ pn ] );
+                newElement.setAttribute( pn, T.TAG_PROPERTIES[ pn ] );
         }
 	//adds text node to element
-        if( typeof this.TEXT_CONTENT == "string" && "createTextNode" in document && "appendChild" in newElement ) {
+        if( typeof T.TEXT_CONTENT == "string" && "createTextNode" in document && "appendChild" in newElement ) {
 			
-			var txtNode = document.createTextNode( this.TEXT_CONTENT );
+			var txtNode = document.createTextNode( T.TEXT_CONTENT );
 			
 			newElement.appendChild( txtNode );
 
@@ -95,12 +108,12 @@ var MCEProto = MenuConstructionEngine.prototype = {
 /**
  * identifies object as menu construction engine type
  */
- 
     CLASS_NAME: "MenuConstructionEngine",
 /**
  * The name of the new property of anchor elements that will store the associated list element to be displayed in menu 
  */
     ANCHOR_LIST_ELEMENT_STORAGE_PROPERTY: "li_element",
+    
 /**
  * list of all anchor elements with children elements filled in
  */
@@ -124,31 +137,153 @@ var MCEProto = MenuConstructionEngine.prototype = {
         
         this.anchorModel = mmce.collectInlineAnchors( document );
         
-        if( mmce.anchorChildrenInit( this.anchorModel ) )
-            mmce.anchorChildrenPopulate( this.anchorModel );
+        if( mmce.anchorChildrenInit( this.anchorModel ) ) {
+
+            if( mmce.anchorChildrenPopulate( this.anchorModel ) ) {
+
+				if( this.createAnchorListElements( mmce, document ) ) {
+
+					if( this.appendChildListElements( mmce, document ) ) {
+
+						return true;
+					}
+					else {
+						return false;
+					}
+				}
+				else {
+					
+					return false;
+				}
+			} 
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
         
     },
 /**
  * creates a new html list element of format <li><a></a></li> for each anchor in anchorModel array and stores it in newly added "li_element" 
  * property of each anchor
  */ 
-    createAnchorListElements: function( document ) {
+    createAnchorListElements: function( menu_model_const_engine, document ) {
 		
 		if( !"CLASS_NAME" in menu_model_const_engine || !"getElementsByTagName" in document )
             return false;
-	
-	//A pool instance of MenuTagBuilder to be re-used to build DOM elements
-		var elementBuilder = new MenuTagBuilder();
-/** PICK UP HERE: NEED TO PARSE THROUGH anchorModel LIST CREATING DOM LI ELEMENT FOR EACH ANCHOR AND STORING IT IN NEW PROPERTY OF ANCHOR ELEMENT **/
-/**/		for( var iter in this.anchorModel ) {																								 /**/
-/**/																																			 /**/
-/**/			var anchor = this.anchorModel[ iter ];																							 /**/
-/**/																																			 /**/	
-/**/																																			 /**/		
-/**/		}																																	 /**/
-/***************************************************************************************************************************************************/
-		delete MenuTagBuilder;
 		
+	//aliasing menu_model_const_engine
+		var mmce = menu_model_const_engine;
+		
+	//A pool instance of MenuTagBuilder to be re-used to build DOM elements
+		var builder = new MenuTagBuilder();
+
+		for( var iter in this.anchorModel ) {
+																											 
+			var anchor = this.anchorModel[ iter ];
+			
+		//Skips rendering anchor as menu element if no id attribute present
+			if( !"id" in anchor )
+				continue;
+				
+		//Build li tag
+			builder.setAll( fl_menuElementTag, 
+							null, 
+							{[ fl_liPositionAttributeName ]: anchor.id } 
+						  );
+						  
+			var _li = builder.buildTag( document );
+			
+			if( !fl_isObj( _li ) || !"appendChild" in _li ) 
+				continue;
+			
+		//Build a tag
+			builder.setAll( fl_anchor, 
+							mmce.anchorIdToTitle( anchor.id ), 
+							{ "href": "#"+anchor.id } 
+						  );
+						  
+			var _a = builder.buildTag( document );
+			
+			if( !fl_isObj( _a ) ) 
+				continue;
+				
+		//Append a to li tag
+			_li.appendChild( _a );
+			
+		//Append blank ul to li if children elements present
+			if( 0 < anchor[fl_childReferenceArray].length ) {
+				
+				builder.setAll( fl_menuTag, null, {} );
+				var _ul = builder.buildTag( document );
+				
+				_li.appendChild( fl_isObj( _ul ) ? _ul : null );
+				
+			}
+			
+		//stores list element in anchor
+			anchor[ this.ANCHOR_LIST_ELEMENT_STORAGE_PROPERTY ] = _li;
+			
+			return true;																		 
+		}																															 
+		
+	},
+	
+	appendChildListElements: function( menu_model_const_engine, document ) {
+		
+		if( !"CLASS_NAME" in menu_model_const_engine || !"getElementsByTagName" in document )
+            return false;
+            
+	//aliasing long variables
+		var mmce = menu_model_const_engine,
+			al = this.ANCHOR_LIST_ELEMENT_STORAGE_PROPERTY;
+			
+	//iterated through anchorModel array
+		for( var iter in this.anchorModel ) {
+			
+			var anchor = this.anchorModel[iter];
+			
+			if( !"id" in anchor || !al in anchor || !fl_childReferenceArray in anchor ) 
+				continue;
+//ERROR BEING CAUSED BY THIS: CLAIM IS THAT anchor[al] is undefined
+			if( !fl_isObj( anchor[al] ) )
+				continue;
+				
+			if( !"childNodes" in anchor[al] )
+				continue;
+				
+			if( anchor[al].childNodes.length < 2 )
+				continue;
+				
+		//aliasing for shortening
+			var c = anchor[fl_childReferenceArray];
+			
+			if( c.length < 1 )
+				continue;
+				
+		//iterated through anchor's child element array
+			for( var i = 0; i < c.length; i++ ) {
+				
+				if( al in c[i] ) {
+					
+					if( fl_isObj( c[i][ al ] ) ) {
+						
+						var u = anchor[al].childNodes[1];
+						
+						if("appendChild" in  u ) {
+							
+							u.appendChild( c[i][ al ] );
+						}						
+					}
+				}
+					
+			}
+			
+		}
+		
+		return true;
 	}
 };
 
