@@ -6,16 +6,24 @@ var fl_anchor ="a",
     fl_menuElementTag = "li",
     fl_anchorClass="fl-inline-anchors",
     fl_parentAttributeName = "fl-parent",
-//the attribute in the constructed menu list elements that identifies the id of the associated anchor in the page
+  //the attribute in the constructed menu list elements that identifies the id of the associated anchor in the page
     fl_liPositionAttributeName = "fl-id",
     fl_childReferenceArray ="children_elements",
     fl_Regex_anchorIdSpacer = /_|-/i;
     
 //object library
-var MenuFluidicity = function(){},
+var MenuFluidicity = function( parentId, settings ){
+	
+		this.parentId = typeof parentId == "string" ? parentId : null;
+		
+		this.settings = fl_isObj( settings ) ? settings : null;
+	},
 	MenuModelConstructionEngine = function() {},
 	MenuConstructionEngine = function() {},
 	MenuTagBuilder = function() {};
+	
+//Top level ul for menu created
+var FlMenu;
 		
 //****************************************************** DEFINES: general global function library *****************************************8
 
@@ -35,11 +43,44 @@ function fl_arrayLike( array ) {
 
 //object prototype definitions
 
-// ******************************************** DEFINES, ALIASES: MenuFluidicity prototype ******************************************8
-var MProto = MenuFluidicity.prototype = {
-};
+//******************************************** ALIASES: MenuFluidicity prototype ******************************************8
+var MProto = MenuFluidicity.prototype;
 
-// ******************************************** DEFINES, ALIASES: MenuTagBuilder prototype ********************************************8
+/**
+ * Primary function that builds menu and calls onSuccess callback if menu built successfully and onFailure callback otherwise
+ * 
+ */
+MProto.create = function( onSuccess, onFailure ) {
+	
+	var mmce = new MenuModelConstructionEngine(),
+		mce = new MenuConstructionEngine();
+		
+		if( mce.construct( mmce, document ) && this.parentId != null ) {
+			
+			var ul1 = mce.buildTopLevelList( mmce, document);
+			
+			if( ul1 ) {
+// ADD MORE CODE TO FULLY APPEND MENU TO PARENT HOLDER AND TEST THIS FUNCTION!
+/***************************************************************************************************************************/
+/**************************************************************************************************************************             
+ **************************************************************************************************************************
+ ******************************************************* RESTART HERE *****************************************************                        
+ ************************************************************************************************************************** 
+ **************************************************************************************************************************/
+ /*************************************************************************************************************************/
+
+				if( typeof onSuccess == "function" )
+					onSuccess();
+					
+				return;
+			}
+		}
+			
+		if( typeof onFailure == "function" )
+			onFailure();
+}
+
+//******************************************** DEFINES, ALIASES: MenuTagBuilder prototype ********************************************8
 var MTSProto = MenuTagBuilder.prototype = {
 
 /**
@@ -180,7 +221,7 @@ var MCEProto = MenuConstructionEngine.prototype = {
 	//A pool instance of MenuTagBuilder to be re-used to build DOM elements
 		var builder = new MenuTagBuilder();
 
-		for( var iter in this.anchorModel ) {
+		for( var iter = 0; iter < this.anchorModel.length; iter++ ) {
 																											 
 			var anchor = this.anchorModel[ iter ];
 			
@@ -225,15 +266,18 @@ var MCEProto = MenuConstructionEngine.prototype = {
 			
 		//stores list element in anchor
 			anchor[ this.ANCHOR_LIST_ELEMENT_STORAGE_PROPERTY ] = _li;
-			
-			return true;																		 
-		}																															 
+																				 
+		}
+		
+		return true;																																 
 		
 	},
-	
-	appendChildListElements: function( menu_model_const_engine, document ) {
+/**
+ * Goes through anchor list, appending child anchor list elements to parent anchor ul element
+ */
+	appendChildListElements: function( menu_model_const_engine ) {
 		
-		if( !"CLASS_NAME" in menu_model_const_engine || !"getElementsByTagName" in document )
+		if( !"CLASS_NAME" in menu_model_const_engine )
             return false;
             
 	//aliasing long variables
@@ -266,6 +310,10 @@ var MCEProto = MenuConstructionEngine.prototype = {
 		//iterated through anchor's child element array
 			for( var i = 0; i < c.length; i++ ) {
 				
+				for( var prop in c[i] ) {
+					console.log( prop );
+				}
+				
 				if( al in c[i] ) {
 					
 					if( fl_isObj( c[i][ al ] ) ) {
@@ -284,6 +332,45 @@ var MCEProto = MenuConstructionEngine.prototype = {
 		}
 		
 		return true;
+	},
+/**
+ * A function to take fully constructed list elements that are not the children of other list elements and perform the final construction
+ * of the menu html DOM
+ */
+	buildTopLevelList: function( menu_model_const_engine, document ) {
+		
+		if( !"CLASS_NAME" in menu_model_const_engine || !"createElement" in document )
+            return false;
+            
+        var builder = new MenuTagBuilder();
+        
+        builder.setAll( fl_menuTag, null, {});
+        
+        var ul1 = builder.buildTag( document );
+        
+        if( !fl_isObj( ul1 ) )
+			return false;
+		
+		if( !"appendChild" in ul1 )
+			return false;
+            
+        var mmce = menu_model_const_engine,
+			al = this.ANCHOR_LIST_ELEMENT_STORAGE_PROPERTY;
+        
+		for( var iter in this.anchorModel ) {
+			
+			var anchor = this.anchorModel[ iter ];
+			
+			if( mmce.getAnchorParent( anchor ) == null && al in anchor) {
+				
+				if( fl_isObj( anchor[ al ] ) )
+				
+					ul1.appendChild( anchor[ al ] );
+				
+			}
+		}
+		
+		return ul1;
 	}
 };
 
