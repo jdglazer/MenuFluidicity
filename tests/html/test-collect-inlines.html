@@ -11,6 +11,7 @@
 		<link href='' rel='shortcut icon'>
 		<link href='../css/bootstrap.min.css' rel='stylesheet' type='text/css'>
 		<link href='../css/doc.css' rel = 'stylesheet' type='text/css'>
+		<link href = "../../src/styles/fluidNavigation.css" rel="stylesheet" type="text/css">
 		<noscript>
 			<div id='no-script-container' class='col-xs-12 col-md-10 col-md-offset-1'>PAGE'S FUNCTIONALITY LIMITED WITHOUT JAVASCRIPT ENABLED.</div>
 			<div id='no-script-link-container' class='col-xs-12 col-md-10 col-md-offset-1'>
@@ -74,7 +75,7 @@
 					<h1><span style="color:rgb(0, 128, 128)"><strong>Introduction to DaMo</strong></span></h1>
 
 					<hr />
-					<p><a class="fl-inline-anchors" fl-parent="This-is-an-anchor" id="This-is-an-anchor-" name="_b11"></a></p>
+					<p><a class="fl-inline-anchors style-class" fl-parent="This-is-an-anchor" id="This-is-an-anchor-" name="_b11"></a></p>
 
 					<p><span style="font-size:18px"><strong>What is Damo?</strong></span></p>
 
@@ -667,6 +668,11 @@
 				var ulTag = mtb.buildTag( document );
 				//alert( ulTag.textContent );
 				
+			//Test MenuEventHub function compileAnchorPositions
+				var meh = new MenuEventHub();
+				
+				//alert ( meh.compileAnchorPositions( mce.anchorModel )["This-is-an-anchor"]  );
+				meh.watch( document.getElementById( "flmenu"), mce.anchorModel );
 				
 				
 		</script>

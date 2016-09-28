@@ -1,17 +1,36 @@
 "use strict";
 
 //settings libraray
+//------------------
+//******************** Tag names used ********************
 var fl_anchor ="a",
     fl_menuTag = "ul",
     fl_menuElementTag = "li",
+//******* Settings for inline anchors ********************
+	//class used to identify anchors in page (inline anchors) from which menu will be constructed
     fl_anchorClass="fl-inline-anchors",
+	//attribute used to identify parent inline anchor element (by parent's id ) for any given inline anchor
     fl_parentAttributeName = "fl-parent",
-  //the attribute in the constructed menu list elements that identifies the id of the associated anchor in the page
-    fl_liPositionAttributeName = "fl-id",
+    //the attribute in the constructed menu list elements that identifies the id of the associated anchor in the page
+//******* Compilation storage properties **************
     fl_childReferenceArray ="children_elements",
-    fl_Regex_anchorIdSpacer = /_|-/i;
-    
+// ******************** Regexes ***********************
+    fl_Regex_anchorIdSpacer = /_|-/i,
+// ****************************** Settings for constructed menu element's attributes *********************************
+    fl_liPositionAttributeName = "fl-id",
+    fl_liStyleClass = "fl-li",
+    fl_aStyleClass = "fl-a",
+    fl_ulStyleClass = "fl-ul",
+    //arrays that store attribute/value pairs for each type of element in menu. This is where property/value pairs desired in html are declared
+    fl_menuTagAttrValPairs = {
+		[fl_anchor]: { "class": fl_aStyleClass },
+		[fl_menuTag]: {"class": fl_ulStyleClass },
+		[fl_menuElementTag]: { [fl_liPositionAttributeName]: "", "class": fl_liStyleClass }
+			
+	};
+        
 //object library
+//--------------
 var MenuFluidicity = function( parentId, settings ){
 	
 		this.parentId = typeof parentId == "string" ? parentId : null;
@@ -20,9 +39,10 @@ var MenuFluidicity = function( parentId, settings ){
 	},
 	MenuModelConstructionEngine = function() {},
 	MenuConstructionEngine = function() {},
-	MenuTagBuilder = function() {};
+	MenuTagBuilder = function() {},
+	MenuEventHub = function() {};
 	
-//Top level ul for menu created
+//Top level ul for menu created. This is the element that is appended to the menu holding element specified by parentId argument in MenuFluidicity.create
 var FlMenu;
 		
 //****************************************************** DEFINES: general global function library *****************************************8
@@ -39,6 +59,13 @@ function fl_isObj( obj ) {
  */
 function fl_arrayLike( array ) {
     return fl_isObj( array ) && "length" in array;
+}
+
+/**
+ * Checks to see if argument string matches the primary identifier class searched for be menu builder
+ */
+function fl_hasClass( _class ) {
+	return _class == fl_anchorClass;
 }
 
 //object prototype definitions
@@ -215,8 +242,9 @@ var MCEProto = MenuConstructionEngine.prototype = {
 		if( !"CLASS_NAME" in menu_model_const_engine || !"getElementsByTagName" in document )
             return false;
 		
-	//aliasing menu_model_const_engine
-		var mmce = menu_model_const_engine;
+	//aliasing menu_model_const_engine and fl_menuTagAttrValPairs
+		var mmce = menu_model_const_engine,
+			mav = fl_menuTagAttrValPairs;
 		
 	//A pool instance of MenuTagBuilder to be re-used to build DOM elements
 		var builder = new MenuTagBuilder();
@@ -230,9 +258,11 @@ var MCEProto = MenuConstructionEngine.prototype = {
 				continue;
 				
 		//Build li tag
+			mav[ fl_menuElementTag ][ fl_liPositionAttributeName ] = anchor.id;
+			
 			builder.setAll( fl_menuElementTag, 
 							null, 
-							{[ fl_liPositionAttributeName ]: anchor.id } 
+							mav[ fl_menuElementTag ] 
 						  );
 						  
 			var _li = builder.buildTag( document );
@@ -240,10 +270,12 @@ var MCEProto = MenuConstructionEngine.prototype = {
 			if( !fl_isObj( _li ) || !"appendChild" in _li ) 
 				continue;
 			
-		//Build a tag
+		//Build <a> tag
+			mav[fl_anchor]["href"] = "#"+anchor.id;
+			
 			builder.setAll( fl_anchor, 
 							mmce.anchorIdToTitle( anchor.id ), 
-							{ "href": "#"+anchor.id } 
+							mav[fl_anchor] 
 						  );
 						  
 			var _a = builder.buildTag( document );
@@ -257,7 +289,7 @@ var MCEProto = MenuConstructionEngine.prototype = {
 		//Append blank ul to li if children elements present
 			if( 0 < anchor[fl_childReferenceArray].length ) {
 				
-				builder.setAll( fl_menuTag, null, {} );
+				builder.setAll( fl_menuTag, null, mav[ fl_menuTag ] );
 				var _ul = builder.buildTag( document );
 				
 				_li.appendChild( fl_isObj( _ul ) ? _ul : null );
@@ -310,10 +342,6 @@ var MCEProto = MenuConstructionEngine.prototype = {
 		//iterated through anchor's child element array
 			for( var i = 0; i < c.length; i++ ) {
 				
-				for( var prop in c[i] ) {
-					console.log( prop );
-				}
-				
 				if( al in c[i] ) {
 					
 					if( fl_isObj( c[i][ al ] ) ) {
@@ -344,7 +372,7 @@ var MCEProto = MenuConstructionEngine.prototype = {
             
         var builder = new MenuTagBuilder();
         
-        builder.setAll( fl_menuTag, null, {});
+        builder.setAll( fl_menuTag, null, fl_menuTagAttrValPairs[fl_menuTag] );
         
         var ul1 = builder.buildTag( document );
         
@@ -393,8 +421,11 @@ var MMCEProto = MenuModelConstructionEngine.prototype = {
         for( iterator = 0; iterator < anchors.length; iterator++ ) {
         
         	if( typeof anchors[iterator] == "object" && "getAttribute" in anchors[iterator] ) {
-          
-            if( anchors[iterator].getAttribute("class")  === fl_anchorClass) {
+			
+			var class_str = anchors[iterator].getAttribute("class"),
+				classes = class_str != null ? class_str.split(" ") : [];
+			
+            if( classes.find( fl_hasClass ) != null ) {
             
               inlines.push( anchors[iterator] );
             }
@@ -535,4 +566,140 @@ var MMCEProto = MenuModelConstructionEngine.prototype = {
     }
     
 }
+//********************************************* DEFINES, ALIASES: MenuEventHub prototype **********************************8
+
+/*********************************************************************************************************************************
+ * 	NEW PARADIGM: save all data necessary in window objects callback functions in dynamically allocated properties of the window *
+ * object. For instance, store anchorPositions and anchorTopPositions into window object properties                              *
+ *********************************************************************************************************************************/
+var MEHProto = MenuEventHub.prototype = {
+	
+	anchorPositions: {},
+	
+	anchorTopPosition: {},
+	
+	scrollHandler: function( event ) {
+						
+			this.menuEventHubInstance.updateAnchorPositionFromTop();
+			
+			for( var iter in this.menuEventHubInstance.anchorTopPosition ) {
+				
+			//aliasing array
+				var ap = this.menuEventHubInstance.anchorTopPosition[iter];
+				
+				if( ( ap[0] >= 0 && ap[1] < 0 ) || ( ap[0] < 0 && ap[1] >= 0 ) ) {
+					
+//WRITE CODE HERE TO CALL FUNCTION TO EDIT ANCHOR PASSING INTO IT VALID ANCHOR ELEMENT ID THAT WAS ENCOUNTERED
+//CODE WILL HAVE TO ADD ACTIVE CLASS TO ASSOCIATE LI ELEMENT AND REMOVE FROM PREVIOUS ELEMENT
+					console.log( iter );
+					break;
+				}
+			}
+		},
+	
+	offsetTop: function( id ) {
+		
+		if( !fl_isObj( document ) )
+			return false;
+			
+		if( !"body" in document )
+			return false;
+			
+		if( !"scrollTop" in document.body )
+			return false;
+			
+		var elemPos = this.distanceFromWindowTop( id );
+		
+		if( typeof elemPos != "number" )
+			return false;
+
+		return document.body.scrollTop -  elemPos;
+		
+	},
+	
+	distanceFromWindowTop: function( id ) {
+		
+		if( !fl_isObj( document ) )
+			return false;
+			
+		if( !"getElementById" in document )
+			return false;
+		
+		var element =  document.getElementById( id );
+		
+		if( !"getBoundingClientRect" in element )
+			return false;
+			
+		return -element.getBoundingClientRect().top;
+	},
+		
+	compileAnchorPositions: function( anchorList ) {
+		
+		var anchorPos = {};
+		
+		if( fl_arrayLike( anchorList ) ) {
+			
+			for( var iter in anchorList ) {
+				
+				var anchor = anchorList[iter];
+				
+				if( !fl_isObj( anchor ) )
+					continue;
+					
+				if( !"id" in anchor )
+					continue;
+				
+				var off = this.offsetTop( anchor.id );
+				
+				anchorPos[ anchor.id ] = typeof off == "number" ? off : -9 ;
+				
+				var distTop = this.distanceFromWindowTop( anchor.id );
+				
+				distTop = typeof distTop == "number" ? distTop : -1;
+				
+				this.anchorTopPosition[ anchor.id ] = [ distTop, distTop ];
+			}
+		}
+		
+		return anchorPos;
+	},	
+	
+	updateAnchorPositionFromTop: function( ) {
+		
+		for( var iter in this.anchorTopPosition ) {
+			
+			var pos = this.anchorTopPosition[ iter ];
+			
+			if( !fl_arrayLike( pos ) )
+				continue;
+				
+			if( pos.length < 2 )
+				continue;
+				
+			pos[0] = pos[1];
+			
+			var d = this.distanceFromWindowTop( iter );
+			
+			pos[1] = d ? d : pos[1];
+		}
+	},
+	
+	watch: function( menuHoldingElement, anchorList ) {
+		
+		if( !fl_isObj( menuHoldingElement ) || 	!fl_isObj( anchorList ) || !fl_isObj( window ) ) 
+			return false;
+			
+		if( !"childNodes" in menuHoldingElement || !fl_arrayLike( anchorList ) )
+			return false;
+			
+		window.menuEventHubInstance = this;
+			
+		this.anchorPositions = this.compileAnchorPositions( anchorList );
+		
+		window.onscroll = this.scrollHandler;		
+		
+	}
+}
+
+
 // ******************************************************************************************************************************

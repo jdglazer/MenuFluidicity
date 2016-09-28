@@ -1,0 +1,46 @@
+#flmenu > ul > li > ul{
+	display: none;
+}
+
+.fl-a {
+	text-decoration: none;
+
+}
+
+.fl-ul {
+	list-style-type: none;
+}
+
+.fl-li {
+	
+}
+
+/* styles activation of menu elements */
+.fl-li > a {
+	padding: 4px;
+}
+
+.fl-li:hover > a {
+	padding-left: 2px;
+	border-left: 2px solid purple;
+}
+/*
+.fl-li > ul {
+	display:none;
+}
+
+.fl-li:hover > ul {
+	display:block;
+}
+*/
+
+/* class for displaying an entire <ul> */
+
+.fl-active-list {
+	display: block;
+}
+
+/* class for displaying an entire element ( <li> ) as active */
+
+.fl-active-element {
+}
