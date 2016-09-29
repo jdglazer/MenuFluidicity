@@ -1,5 +1,8 @@
 "use strict";
 
+//********************************************************* The DOMModify Library: a JQuery alternative *********************************
+var requiredElementProperties=["accessKey","appendChild","childNodes","className","getAttribute","setAttribute","id","innerHTML","nodeName","nodeType","nodeValue","firstChild","lastChild","previousSibling","tagName"]var DOMModify=function(d){this.__node=null;this.isElement=function(a,b){if(!this.o(a)||!this.o(b))return false;for(var c in b){if(!b[c]in a)return false}return true}if(this.o(d)){this.__node=("__node"in d?d.__node:(this.isElement(d,requiredElementProperties)?d:null))}else if(this.s(d)){}}var p=DOMModify.prototype;p.o=function(a){return typeof a=="object"}p.s=function(a){return typeof a=="string"}p.n=function(a){return typeof a=="number"}p.f=function(a){return typeof a=="function"}p.ai=function(a){return this.o(a)&&"length"in a}p.nn=function(a){return a!=null}p.isElement=function(a,b){if(!this.o(a)||!this.o(b))return false;for(var c in b){if(!b[c]in a)return false}return true}p.getAttr=function(a){if(!this.nn(this.__node)||!this.s(a))return null;return this.__node.getAttribute(a)}p.setAttr=function(a,b){if(!this.nn(this.__node))return;this.__node.setAttribute(a,b)}p.getClasses=function(){if(!this.nn(this.__node))return[];return this.__node.className.split(" ")}p.addClass=function(a){if(!this.nn(this.__node))return;var c=this.getClasses();c.push(a);var b=c.join(" ");if(this.s(b))this.__node.className=b}p.removeClass=function(a){var b=this.getClasses(),i=b.indexOf(a);if(i>-1){b.splice(i,1);this.__node.className=b.join(" ")}}
+var _d = new DOMModify( {} );
 //settings libraray
 //------------------
 //******************** Tag names used ********************
@@ -573,11 +576,25 @@ var MMCEProto = MenuModelConstructionEngine.prototype = {
  * object. For instance, store anchorPositions and anchorTopPositions into window object properties                              *
  *********************************************************************************************************************************/
 var MEHProto = MenuEventHub.prototype = {
-	
+
+/**
+ * The fixed anchor positions relative to the top of the document
+ */
 	anchorPositions: {},
+	
+/**
+ * The anchor positions relative to the top of the window. An associative array of indexed arrays. First value in indexed array
+ * is last positions second to last position recorded for anchor element and second element is last position recorded
+ */
 	
 	anchorTopPosition: {},
 	
+/**
+ * The function that is passed to the window object's onscroll event handler. This function should be thought of as a member of
+ * the window object, not this object. Thus "this" will reference the window object. The method used to access members of this object
+ * is first by passing a reference to this object to the window object so that this objects members are still visible in the window
+ * object.
+ */	
 	scrollHandler: function( event ) {
 						
 			this.menuEventHubInstance.updateAnchorPositionFromTop();
@@ -591,12 +608,14 @@ var MEHProto = MenuEventHub.prototype = {
 					
 //WRITE CODE HERE TO CALL FUNCTION TO EDIT ANCHOR PASSING INTO IT VALID ANCHOR ELEMENT ID THAT WAS ENCOUNTERED
 //CODE WILL HAVE TO ADD ACTIVE CLASS TO ASSOCIATE LI ELEMENT AND REMOVE FROM PREVIOUS ELEMENT
-					console.log( iter );
+					
 					break;
 				}
 			}
 		},
-	
+/**
+ * Gets the distance between the top of the body and the element specified by the id argument
+ */
 	offsetTop: function( id ) {
 		
 		if( !fl_isObj( document ) )
@@ -616,7 +635,9 @@ var MEHProto = MenuEventHub.prototype = {
 		return document.body.scrollTop -  elemPos;
 		
 	},
-	
+/**
+ * Gets the distance between the object identified by id argument and the top of the browser window
+ */
 	distanceFromWindowTop: function( id ) {
 		
 		if( !fl_isObj( document ) )
@@ -632,7 +653,9 @@ var MEHProto = MenuEventHub.prototype = {
 			
 		return -element.getBoundingClientRect().top;
 	},
-		
+/**
+ * Gets all positions of elements in document relative to the top of the body and stores them in anchorTopPositions array
+ */
 	compileAnchorPositions: function( anchorList ) {
 		
 		var anchorPos = {};
@@ -664,6 +687,9 @@ var MEHProto = MenuEventHub.prototype = {
 		return anchorPos;
 	},	
 	
+/**
+ * Updates the position of the anchor elements relative to the top of the window as they are stored in anchorTopPostion array
+ */
 	updateAnchorPositionFromTop: function( ) {
 		
 		for( var iter in this.anchorTopPosition ) {
@@ -684,6 +710,9 @@ var MEHProto = MenuEventHub.prototype = {
 		}
 	},
 	
+/**
+ * THe function that implements scroll watcher and updater
+ */
 	watch: function( menuHoldingElement, anchorList ) {
 		
 		if( !fl_isObj( menuHoldingElement ) || 	!fl_isObj( anchorList ) || !fl_isObj( window ) ) 
@@ -692,6 +721,7 @@ var MEHProto = MenuEventHub.prototype = {
 		if( !"childNodes" in menuHoldingElement || !fl_arrayLike( anchorList ) )
 			return false;
 			
+	//passing an instance of this object to window object so the object's function can be called in windows callback function
 		window.menuEventHubInstance = this;
 			
 		this.anchorPositions = this.compileAnchorPositions( anchorList );
@@ -702,4 +732,6 @@ var MEHProto = MenuEventHub.prototype = {
 }
 
 
-// ******************************************************************************************************************************
+// ***************************************************************************************************************************
+
+
