@@ -1,8 +1,5 @@
 "use strict";
 
-//********************************************************* The DOMModify Library: a JQuery alternative *********************************
-var requiredElementProperties=["accessKey","appendChild","childNodes","className","getAttribute","setAttribute","id","innerHTML","nodeName","nodeType","nodeValue","firstChild","lastChild","previousSibling","tagName"]var DOMModify=function(d){this.__node=null;this.isElement=function(a,b){if(!this.o(a)||!this.o(b))return false;for(var c in b){if(!b[c]in a)return false}return true}if(this.o(d)){this.__node=("__node"in d?d.__node:(this.isElement(d,requiredElementProperties)?d:null))}else if(this.s(d)){}}var p=DOMModify.prototype;p.o=function(a){return typeof a=="object"}p.s=function(a){return typeof a=="string"}p.n=function(a){return typeof a=="number"}p.f=function(a){return typeof a=="function"}p.ai=function(a){return this.o(a)&&"length"in a}p.nn=function(a){return a!=null}p.isElement=function(a,b){if(!this.o(a)||!this.o(b))return false;for(var c in b){if(!b[c]in a)return false}return true}p.getAttr=function(a){if(!this.nn(this.__node)||!this.s(a))return null;return this.__node.getAttribute(a)}p.setAttr=function(a,b){if(!this.nn(this.__node))return;this.__node.setAttribute(a,b)}p.getClasses=function(){if(!this.nn(this.__node))return[];return this.__node.className.split(" ")}p.addClass=function(a){if(!this.nn(this.__node))return;var c=this.getClasses();c.push(a);var b=c.join(" ");if(this.s(b))this.__node.className=b}p.removeClass=function(a){var b=this.getClasses(),i=b.indexOf(a);if(i>-1){b.splice(i,1);this.__node.className=b.join(" ")}}
-var _d = new DOMModify( {} );
 //settings libraray
 //------------------
 //******************** Tag names used ********************
@@ -606,9 +603,8 @@ var MEHProto = MenuEventHub.prototype = {
 				
 				if( ( ap[0] >= 0 && ap[1] < 0 ) || ( ap[0] < 0 && ap[1] >= 0 ) ) {
 					
-//WRITE CODE HERE TO CALL FUNCTION TO EDIT ANCHOR PASSING INTO IT VALID ANCHOR ELEMENT ID THAT WAS ENCOUNTERED
-//CODE WILL HAVE TO ADD ACTIVE CLASS TO ASSOCIATE LI ELEMENT AND REMOVE FROM PREVIOUS ELEMENT
-					
+				//Calls anchor passage callback passing anchor id and scrollDown boolean ( true if scrolling down, false if scrolling up)
+					this.menuEventHubInstance.onanchorpass( iter, (ap[1] - ap[0]) >= 0 );
 					break;
 				}
 			}
@@ -711,7 +707,7 @@ var MEHProto = MenuEventHub.prototype = {
 	},
 	
 /**
- * THe function that implements scroll watcher and updater
+ * THe function that implements scroll watcher and detection on passing of anchor list
  */
 	watch: function( menuHoldingElement, anchorList ) {
 		
@@ -728,10 +724,12 @@ var MEHProto = MenuEventHub.prototype = {
 		
 		window.onscroll = this.scrollHandler;		
 		
+	},
+/**
+ * An callback function that is called when a registered anchor element is passes the top or bottom of the page
+ */
+	onanchorpass: function( anchorId, scrollDown ) {
+		console.log( anchorId+":", scrollDown );
 	}
 }
-
-
 // ***************************************************************************************************************************
-
-
