@@ -19,6 +19,7 @@ var fl_anchor ="a",
 // ****************************** Settings for constructed menu element's attributes *********************************
     fl_liPositionAttributeName = "fl-id",
     fl_liStyleClass = "fl-li",
+    fl_liActiveClass = "fl-active",
     fl_aStyleClass = "fl-a",
     fl_ulStyleClass = "fl-ul",
     //arrays that store attribute/value pairs for each type of element in menu. This is where property/value pairs desired in html are declared
@@ -40,7 +41,8 @@ var MenuFluidicity = function( parentId, settings ){
 	MenuModelConstructionEngine = function() {},
 	MenuConstructionEngine = function() {},
 	MenuTagBuilder = function() {},
-	MenuEventHub = function() {};
+	MenuEventHub = function() {},
+	MenuActivator = function() {};
 	
 //Top level ul for menu created. This is the element that is appended to the menu holding element specified by parentId argument in MenuFluidicity.create
 var FlMenu;
@@ -469,7 +471,7 @@ var MMCEProto = MenuModelConstructionEngine.prototype = {
  */
     getAnchorParent: function( anchorElement ) {
     
-        if ( !fl_isObj( anchorElement ) ) 
+        if ( !fl_isObj( anchorElement ) )  
             return null;
             
         if( "getAttribute" in anchorElement )
@@ -550,7 +552,7 @@ var MMCEProto = MenuModelConstructionEngine.prototype = {
     getElementsById: function ( anchorArray, id ) {
         
         if( !fl_arrayLike( anchorArray ) || typeof id != "string" )
-            return false;
+            return [];
             
         var returnAnchors = [];
         
@@ -563,7 +565,26 @@ var MMCEProto = MenuModelConstructionEngine.prototype = {
         
         return returnAnchors;          
        
-    }
+    },
+    
+/**
+ * Function to return a parent element by the current elements id
+ */
+    getParentElement: function ( anchorArray, id ) {
+		
+		if( !fl_arrayLike( anchorArray ) || typeof id != "string" )
+			return {};
+		
+		var e = this.getElementsById( anchorArray, id);
+		
+		var pStr = this.getAnchorParent( e.length > 0 ? e[0] : {} );
+		
+		var p = this.getElementsById( anchorArray, id );
+		
+		return (p.length > 0 )
+				? p[0]
+				: {};
+	}
     
 }
 //********************************************* DEFINES, ALIASES: MenuEventHub prototype **********************************8
@@ -585,6 +606,8 @@ var MEHProto = MenuEventHub.prototype = {
  */
 	
 	anchorTopPosition: {},
+	anchorList:  null,
+	menuUl: null,
 	
 /**
  * The function that is passed to the window object's onscroll event handler. This function should be thought of as a member of
@@ -717,6 +740,18 @@ var MEHProto = MenuEventHub.prototype = {
 		if( !"childNodes" in menuHoldingElement || !fl_arrayLike( anchorList ) )
 			return false;
 			
+		for( var iter in menuHoldingElement.childNodes ) {
+			
+			var e = menuHoldingElement.childNodes[iter];
+			
+			if( !"tagName" in e )
+				continue;
+				
+			if( e.tagName.toLowerCase() == fl_menuTag ) {
+				this.menuUl = e;
+				break;
+			}
+		}
 	//passing an instance of this object to window object so the object's function can be called in windows callback function
 		window.menuEventHubInstance = this;
 			
@@ -730,6 +765,122 @@ var MEHProto = MenuEventHub.prototype = {
  */
 	onanchorpass: function( anchorId, scrollDown ) {
 		console.log( anchorId+":", scrollDown );
+	},
+	
+	menuActivator: function( liId ) {
+		
+		if( fl_isObj( this.menuUl ) )
+			return;
+			
+		if ( !"getElementById" in this.menuUl )
+			return;
+			
+		var li = this.menuUl.getElementById( liId );
+		
+		var classes = li.className.split(" ");
+		
+		for(var iter in classes) {
+			
+			if( classes[iter] == fl_liActiveClass ) {
+				
+				break;
+			}
+		}
+			
+		
 	}
 }
-// ***************************************************************************************************************************
+// **************************************************** DEFINES, ALIASES: MenuActivator ***************************************************
+
+var MAProto = MenuActivator.prototype = {
+	
+	menuUl: null,
+	
+	anchorList: null,
+	
+	mmce: null,
+	
+	construct: function( menuHolderId, anchorList, menu_model_construction_engine ) {
+		
+		if( fl_arrayLike( anchorList ) ) {
+			this.anchorList = anchorList;
+		}
+		
+		if( typeof menuHolderId != "string" || !fl_isObj( document ) )
+			return;
+			
+		if( !"getElementById" in document )
+			return;
+			
+		var menu = document.getElementById( menuHolderId );
+		
+		if( !fl_isObj( menu ) )
+			return;
+			
+		if( !"childNodes" in menu )
+			return;
+			
+		for( var iter in menu.childNodes ) {
+			
+			if( menu.childNodes[iter].tagName.toLowerCase() == fl_menuTag ) {
+				
+				this.menuUl = menu.childNodes[iter];
+				break;
+			}
+		}
+		
+		if( !"CLASS_NAME" in menu_model_construction_engine )
+			return;
+			
+		if( menu_model_construction_engine.CLASS_NAME == "MenuModelConstructionEngine" )
+			this.mmce = menu_model_construction_engine;
+		
+	},
+/**
+ * A function return a menu element by its fl-id attribute value
+ */	
+	getElementByFlId: function( menuHolderId, id ) {
+		
+		
+	}
+	
+/**
+ * A function that returns a siblings list for a given element in order that they occur in the menuHolder
+ */
+	getSiblingList: function( menuHolderId, liId ) {
+		
+		var siblings = [];
+		
+		if( typeof liId != "string" )
+			return siblings;
+			
+		//Function to get list element by it's fl-id attribute
+					
+		if( li.length > 0 ) {
+			
+			if( "previousSibling" in li[0] && "nextSibling" in li[0]) {
+				
+				var element = li[0];
+				
+				siblings.push( li[0] );
+				
+				while( element.nextSibling != null ) {
+					siblings.push( element.nextSibling );
+					element = element.nextSibling;
+				}
+				
+				element = li[0];
+				
+				while( element.previousSibling != null ) {
+					
+					siblings.unshift( element.previousSibling );
+					element = element.previousSibling;
+				}
+				
+			}
+		}
+		
+		return siblings;		
+	}
+
+}

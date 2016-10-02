@@ -674,6 +674,14 @@
 				//alert ( meh.compileAnchorPositions( mce.anchorModel )["This-is-an-anchor"]  );
 				meh.watch( document.getElementById( "flmenu"), mce.anchorModel );
 				
+			//Test MenuActivator next sibling function
+				var ma = new MenuActivator();
+				ma.construct( "flmenu", mce.anchorModel, mmce);
+				var _l = ma.getSiblingList(mce.anchorModel, "This-is-an-anchor");
+				
+				for( var i in _l )
+					console.log( "Testing MenuActivator's getSiblingList function:", _l[i].tagName );
+				
 				
 		</script>
 	</body>
