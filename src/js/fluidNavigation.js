@@ -14,6 +14,7 @@ var fl_anchor ="a",
     //the attribute in the constructed menu list elements that identifies the id of the associated anchor in the page
 //******* Compilation storage properties **************
     fl_childReferenceArray ="children_elements",
+    fl_parentReferenceVariable ="parent_element",
 // ******************** Regexes ***********************
     fl_Regex_anchorIdSpacer = /_|-/i,
 // ****************************** Settings for constructed menu element's attributes *********************************
@@ -532,6 +533,8 @@ var MMCEProto = MenuModelConstructionEngine.prototype = {
                                 
                                 //All checks complete -> anchor element is added to parent elements child list
                                     parent_elements[p][ fl_childReferenceArray ].push( a );
+                                //and reference to parent element is added to child element's fl_parentReferenceVariable property
+									a[ fl_parentReferenceVariable ]  =  parent_elements[p];
                                 }
                             }
                         }
@@ -579,7 +582,7 @@ var MMCEProto = MenuModelConstructionEngine.prototype = {
 		
 		var pStr = this.getAnchorParent( e.length > 0 ? e[0] : {} );
 		
-		var p = this.getElementsById( anchorArray, id );
+		var p = this.getElementsById( anchorArray, pStr );
 		
 		return (p.length > 0 )
 				? p[0]
@@ -608,6 +611,7 @@ var MEHProto = MenuEventHub.prototype = {
 	anchorTopPosition: {},
 	anchorList:  null,
 	menuUl: null,
+	previousA: null,
 	
 /**
  * The function that is passed to the window object's onscroll event handler. This function should be thought of as a member of
@@ -627,7 +631,8 @@ var MEHProto = MenuEventHub.prototype = {
 				if( ( ap[0] >= 0 && ap[1] < 0 ) || ( ap[0] < 0 && ap[1] >= 0 ) ) {
 					
 				//Calls anchor passage callback passing anchor id and scrollDown boolean ( true if scrolling down, false if scrolling up)
-					this.menuEventHubInstance.onanchorpass( iter, (ap[1] - ap[0]) >= 0 );
+					this.menuEventHubInstance.onanchorpass( this.menuEventHubInstance.previousA, iter, (ap[1] - ap[0]) >= 0 );
+					this.menuEventHubInstance.previousA = iter;
 					break;
 				}
 			}
@@ -763,8 +768,8 @@ var MEHProto = MenuEventHub.prototype = {
 /**
  * An callback function that is called when a registered anchor element is passes the top or bottom of the page
  */
-	onanchorpass: function( anchorId, scrollDown ) {
-		console.log( anchorId+":", scrollDown );
+	onanchorpass: function( previousAnchorId, anchorId, scrollDown ) {
+		console.log( anchorId+":", previousAnchorId+", "+ scrollDown );
 	},
 	
 	menuActivator: function( liId ) {
@@ -798,6 +803,8 @@ var MAProto = MenuActivator.prototype = {
 	
 	anchorList: null,
 	
+	flIdMap: null,
+	
 	mmce: null,
 	
 	construct: function( menuHolderId, anchorList, menu_model_construction_engine ) {
@@ -829,6 +836,8 @@ var MAProto = MenuActivator.prototype = {
 			}
 		}
 		
+		this.flIdMap = this.getByAttributePresence( this.menuUl, fl_liPositionAttributeName, [] );
+		
 		if( !"CLASS_NAME" in menu_model_construction_engine )
 			return;
 			
@@ -836,40 +845,34 @@ var MAProto = MenuActivator.prototype = {
 			this.mmce = menu_model_construction_engine;
 		
 	},
-/**
- * A function return a menu element by its fl-id attribute value
- */	
-	getElementByFlId: function( menuHolderId, id ) {
-		
-		
-	}
 	
 /**
- * A function that returns a siblings list for a given element in order that they occur in the menuHolder
+ * A function that returns a siblings list for a given element by its fl-id in order that they occur in the menuHolder
  */
-	getSiblingList: function( menuHolderId, liId ) {
+	getSiblingList: function( liId ) {
 		
 		var siblings = [];
 		
 		if( typeof liId != "string" )
 			return siblings;
 			
-		//Function to get list element by it's fl-id attribute
+		//aliasing flIdMap property
+		var _li = this.getByFlId( liId );
 					
-		if( li.length > 0 ) {
+		if( fl_isObj( _li ) && _li != null) {
 			
-			if( "previousSibling" in li[0] && "nextSibling" in li[0]) {
+			if( "previousSibling" in _li && "nextSibling" in _li ) {
 				
-				var element = li[0];
+				var element = _li;
 				
-				siblings.push( li[0] );
+				siblings.push( _li );
 				
 				while( element.nextSibling != null ) {
 					siblings.push( element.nextSibling );
 					element = element.nextSibling;
 				}
 				
-				element = li[0];
+				element = _li;
 				
 				while( element.previousSibling != null ) {
 					
@@ -881,6 +884,258 @@ var MAProto = MenuActivator.prototype = {
 		}
 		
 		return siblings;		
+	},
+	
+/**
+ * A function to recursively go through dom node and all children nodes and return an array of nodes that all contain the a given attribute
+ */	
+	getByAttributePresence: function( parentElement, attributeName, attributePresenceMap ) {
+		
+		if( !fl_isObj( parentElement ) || typeof attributeName != "string" || !fl_arrayLike( attributePresenceMap ) )
+			return attributePresenceMap;
+			
+		for( var i = 0; i < parentElement.childNodes.length; i++ ) {
+			
+			if( "hasAttribute" in parentElement.childNodes[i] ) {
+				
+				if( parentElement.childNodes[i].hasAttribute( attributeName ) ) {
+				
+					attributePresenceMap.push( parentElement.childNodes[i] );
+				}
+			}
+			
+			if ( parentElement.childNodes[i].hasChildNodes() ) {
+			
+				this.getByAttributePresence( parentElement.childNodes[i], attributeName, attributePresenceMap );
+			}
+		}
+		
+		return attributePresenceMap;
+	},
+	
+/**
+ * A function to return dom element by a certain fl-id value
+ */
+	getByFlId: function( flId ) {
+		
+		for( var iter in this.flIdMap ) {
+			
+			if( this.flIdMap[ iter ].getAttribute( fl_liPositionAttributeName ) == flId ) {
+				
+				return this.flIdMap[ iter ];
+			}
+		}
+		
+		return null;
+	},
+/**
+ * Returns the active state of a given object selected by its fl-id attribute. If no element with fl-id attribute is found, it returns false
+ */
+	isActive: function( flId ) {
+		
+		var classes;
+		
+		if( typeof flId != "string"  )
+			return false;
+			
+		var element = this.getByFlId( flId );
+		
+		if( !fl_isObj( element ) || element == null )
+			return false;
+			
+		if( !"className" in element ) 
+			return false;
+			
+		classes = element.className.split( " " );
+		
+		for( var i in classes ) {
+			
+			if( classes[i] ==  fl_liActiveClass ) {
+				return true;
+			}
+		}
+			
+		return false;
+		
+	},
+/**
+ * Sets an elements active state( true for active, false for inactive) with the active state class. Element is selected by its fl-id attribute value
+ */
+	setActive: function( flId, activeStatus) {
+
+		var classes = [];
+		
+		if( !typeof flId == "string" || typeof activeStatus != "boolean" )
+			return false;
+			
+		var element = this.getByFlId( flId );
+		
+		if( !fl_isObj( element )) 
+			return false;
+			
+		if( !"className" in element ) 
+			return false;
+		
+		var active = this.isActive( flId );
+		 		
+		if( active && !activeStatus ) {
+			
+			classes = element.className.split( " ");
+			element.className = "";
+			
+			for( var j in classes ) {
+				
+				alert( classes[j]+"="+fl_liActiveClass );
+				if ( classes[j] != fl_liActiveClass ) {
+					
+					element.className=element.className+" "+classes[j];
+				}
+			}
+		}
+		else if( !active && activeStatus) {
+			element.className = element.className+" "+fl_liActiveClass;
+		}
+		
+		element.className = element.className.trim();
+		
+		if( activeStatus ) {
+			
+//set parent elements as active or inactive
+		}
+		
+		return true;
+		
+	},
+/**
+ * Selects an element by its fl-id attribute and sets it and all of its sibling fl-id element's active states
+ */
+	setSiblingsActive( flId, activeStatus ) {
+
+		if( !typeof flId == "string" || typeof activeStatus != "boolean" )
+			return false;
+			
+		var siblings = this.getSiblingList( flId );
+		
+		for( var l in siblings ) {
+			
+			if( "getAttribute" in siblings[ l ] ) {
+				this.setActive( siblings[ l ].getAttribute( fl_liPositionAttributeName ),
+								activeStatus );
+			}
+		}
+	},
+	
+	setParentsActive: function( flId, activeStatus ) {
+		
+	//get parent of element
+		var parent = this.getParentFlElement( flId );
+		
+		while ( parent != null ) {
+			
+			var parentId = parent.getAttribute( fl_liPositionAttributeName );
+			
+			if( "getAttribute" in parent )
+				this.setActive( parentId , activeStatus );
+				
+			parent = this.getParentFlElement( parentId );
+		}
+	},
+/**
+ * Returns the previous sibling element with the fl-id attribute present or null if it is the first
+ */
+	getPreviousFlElement: function( flId ) {
+		var element = this.getByFlId( flId );
+		
+		if( !fl_isObj( element ) || element == null )
+			return null;
+		
+		if( !"previousSibling" in element )
+			return null;
+			
+		element = element.previousSibling;
+		
+		while( element != null ) {
+						
+			if( "hasAttribute" in  element ) {
+				
+				if( element.hasAttribute( fl_liPositionAttributeName ) ) {
+					
+					return element;
+				}
+			}
+			
+			if( !"previousSibling" in element )
+				return null;
+				
+			element = element.previousSibling;
+		}
+		
+		return null;
+	},
+/**
+ * Returns the next sibling element with the fl-id attribute present or null if it is the last
+ */
+	getNextFlElement: function( flId) {
+		
+		var element = this.getByFlId( flId );
+		
+		if( !fl_isObj( element ) || element == null )
+			return null;
+		
+		if( !"nextSibling" in element )
+			return null;
+			
+		element = element.nextSibling;
+		
+		while( element != null ) {
+						
+			if( "hasAttribute" in  element ) {
+				
+				if( element.hasAttribute( fl_liPositionAttributeName ) ) {
+					
+					return element;
+				}
+			}
+			
+			if( !"nextSibling" in element )
+				return null;
+				
+			element = element.nextSibling;
+		}
+		
+		return null;
+	},
+/**
+ * Returns the parent fl-id containing element of element with specified fl-id or null if none can be found
+ */
+	getParentFlElement: function( flId ) { 
+		
+		if( this.mmce == null ) 
+			return null;
+			
+		var parent = this.mmce.getParentElement( this.anchorList, flId );
+		
+		if( !"id" in parent )
+			return null;
+		
+		return this.getByFlId( parent.id );
+		
+	},
+/**
+ * 
+ */
+	activateElement: function( flId, downScroll ) {
+		
+		this.setSiblingsActive( flId, false );
+		
+		if( downScroll ) {
+			this.setSiblingsActive( flId, false );
+			this.setActive( flId, true );
+			
+		}
+		else {
+						
+		}
 	}
 
 }

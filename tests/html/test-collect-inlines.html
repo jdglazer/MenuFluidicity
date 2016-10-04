@@ -677,11 +677,31 @@
 			//Test MenuActivator next sibling function
 				var ma = new MenuActivator();
 				ma.construct( "flmenu", mce.anchorModel, mmce);
-				var _l = ma.getSiblingList(mce.anchorModel, "This-is-an-anchor");
+				var _l = ma.getSiblingList("This-is-an-anchor-1");
 				
-				for( var i in _l )
-					console.log( "Testing MenuActivator's getSiblingList function:", _l[i].tagName );
+				//for( var i in _l )
+					//console.log( "Testing MenuActivator's getSiblingList function:", _l[i].getAttribute( "fl-id" ) );
+				//var _flid = ma.getByAttributePresence( document.getElementById( "flmenu"), "fl-id", []);
+				//.log( _flid.length);
 				
+				//test isActive function
+					//console.log( ma.isActive( "This-is-an-anchor" ) );
+				//test setActive function
+					//ma.setActive( "This-is-an-anchor", true );
+					//console.log( ma.isActive( "This-is-an-anchor") );
+					//ma.setActive( "This-is-an-anchor", false );
+					//console.log( ma.isActive( "This-is-an-anchor" ) );
+				//test setSiblingsActive function
+					//ma.setSiblingsActive( "This-is-an-anchor-1", true );
+					//ma.setSiblingsActive( "This-is-an-anchor-1", false );
+				//test getPreviousFlElementFunction
+					//console.log( ma.getPreviousFlElement( "checker" ) );
+				//test getNextFlElement function
+					//console.log( ma.getNextFlElement( "checker" ) );
+					
+					ma.setActive( "This-is-an-anchor-2", true );
+				
+				console.log( ma.getParentFlElement( "checker" )	);
 				
 		</script>
 	</body>
