@@ -1000,7 +1000,7 @@ var MAProto = MenuActivator.prototype = {
 		
 		if( activeStatus ) {
 			
-//set parent elements as active or inactive
+			this.setParentsActive( flId, activeStatus );
 		}
 		
 		return true;
@@ -1024,7 +1024,9 @@ var MAProto = MenuActivator.prototype = {
 			}
 		}
 	},
-	
+/**
+ * A function to activate or deactivate all of an fl-id containing element's parent fl-id containing elements
+ */
 	setParentsActive: function( flId, activeStatus ) {
 		
 	//get parent of element
