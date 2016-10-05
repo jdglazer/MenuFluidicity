@@ -26,6 +26,8 @@
 		<script src='../scripts/docModule.js'></script>
 	</head>
 	<body ng-app='Documentation'>
+		<a id="anchor1" class="fl-inline-anchors"></a>
+		<div id="holder"></div>
 		<div id="flmenu"></div>
 		<div id='outer-container' class='container-fluid'>
 			<div id='title-row' class='row'>
@@ -48,14 +50,14 @@
 				<hr>
 				<div class='div-extender'></div>
 			</div>
+			<a id="anchor2" class="fl-inline-anchors" fl-parent="anchor1"></a>
 			<div id='main-row' class='row' ng-controller='MenuBuilder'>
 				<div id='nav-bar-outer-container' class = 'col-xs-12 col-md-offset-1 col-md-3' style='border: 1px solid #dddddd; background-color: #fdfdfd' >
 					<ul id ='navigation-main-list' class='navigation-list'>
 						<li>Head Element</li>
 						<li class='navigation-main-element nav-el' id="{{section.section_id}}" ng-mouseover="mouseover = section.section_id;" ng-mouseleave="mouseover = 'afadfdafdafdafd4tefd'" ng-click="activate_element(getIdByName(section.name))" ng-repeat='section in DocElement.sections'>
-							<a class="fl-inline-anchors" id="This-is-an-anchor" href="{{'#'+section.section_id}}">
-							<a class="fl-inline-anchors" fl-parent="This-is-an-anchor" id="This-is-an-anchor-1" href="{{'#'+section.section_id}}">
-							<a class="fl-inline-anchors" fl-parent="This-is-an-anchor-1" id="This-is-an-anchor-2" href="{{'#'+section.section_id}}">
+
+						
 								<div class='navigation-main-element-title' ng-bind='section.name' ng-class="{'active-nav-element':isActiveElement(section.section_id)}"></div>
 							</a>
 							<ul class='navigation-sub-list-1 navigation-list' ng-class="{'navigation-sub-list-1-not-active':!isActiveElement(section.section_id)}" ng-show="isActiveElement(section.section_id) || mouseover == section.section_id || main_child_active(section.section_id)">
@@ -71,12 +73,12 @@
 					<div ng-bind="pos_holder_above_mid"></div>
 					<div ng-bind="test_field"></div>-->
 				</div>
+				<a id="anchor3" class="fl-inline-anchors" fl-parent="anchor1"></a>
 				<div id='main-content-container' class = 'col-xs-12 col-md-8' style='border: 1px solid #dddddd; background-color: #fdfdfd' ng-controller='DocumentationBuilder'>
 					<h1><span style="color:rgb(0, 128, 128)"><strong>Introduction to DaMo</strong></span></h1>
 
 					<hr />
-					<p><a class="fl-inline-anchors style-class" fl-parent="This-is-an-anchor" id="This-is-an-anchor-" name="_b11"></a></p>
-
+					
 					<p><span style="font-size:18px"><strong>What is Damo?</strong></span></p>
 
 					<p><span style="font-size:14px">DaMo&nbsp;is a lightweight PHP framework geared toward producing complex&nbsp;JSON data models sourced from a MySQL database. A simple and intuitive XML format is used to tie together the database and PHP code into a&nbsp;JSON model. The full power and capability of Damo is inkoked in registering specific &quot;addresses&quot;&nbsp;in&nbsp;the database with&nbsp;points&nbsp;in&nbsp;the XML model. Another, simple way of explaining DaMo&nbsp;is that it helps&nbsp;&quot;binds&quot; points in a server side&nbsp;database (MySQL) to points in a clientside&nbsp;JSON model.&nbsp;</span></p>
@@ -92,7 +94,6 @@
 					<p><span style="font-size:18px"><strong>Quick Start Guide</strong></span></p>
 
 					<p><span style="font-size:14px">Producing a JSON model with DaMo involves&nbsp;the following primary steps:</span></p>
-
 					<ol>
 						<li><span style="font-size:14px">Register MySQL queries and result handlers to an instance of the&nbsp;Scope object</span></li>
 						<li><span style="font-size:14px">Design the JSON Model using XML and MySQL query information registered to a Scope object</span></li>
@@ -103,11 +104,11 @@
 					<p><span style="font-size:14px">The first two steps are the most involved by far. Let&#39;s take a closer look at what implementing these steps looks like.</span></p>
 
 					<p><span style="font-size:14px">Let&#39;s say we start out with a two MySQL tables of the following format in the&nbsp;<em>LetsTestDaMo</em>&nbsp;database.</span></p>
-
+					
 					<hr />
 					<p><span style="font-size:16px">1.&nbsp;<em>UserInformation</em>&nbsp;Table</span><br />
 					<img alt="User Information Table" src="http://localhost/TrailGuide/Website/Interface/webDataModelBuild/Documentation/UserInformation.png" style="height:450px; margin-top:12px; width:800px" /></p>
-
+					<a id="anchor4" class="fl-inline-anchors"></a>
 					<hr />
 					<p><span style="font-size:16px">2.&nbsp;<em>ProfilePics</em>&nbsp;Table</span></p>
 
@@ -115,7 +116,7 @@
 
 					<hr />
 					<p><span style="font-size:14px">With these two tables we now have a set of data to work with. At this point we may have in mind a feature to display all users with score greater than 10000. With this being our goal we must first create a php file where from which our query will be stored and executed. In our file we will perform the following steps:</span></p>
-
+					
 					<p><span style="font-size:14px">1. Include Damo - this assumes Damo.min.php is in the same directory we are running our php script from.</span></p>
 
 					<div class="code-block">
@@ -137,7 +138,7 @@
 
 					<p><span style="font-size:14px"><span style="color:#008080">$myscope</span><span style="color:#000000">-&gt;perm_key([</span><span style="color:#008080">&quot;key1&quot;</span><span style="color:#000000">], [</span><span style="color:#008080">$mypermission</span><span style="color:#000000">]);</span></span></p>
 					</div>
-
+					<a id="anchor5" class="fl-inline-anchors" fl-parent="anchor4"></a>
 					<p><span style="font-size:14px">3. From step 2 above we see a format for registering information that will be followed with all of the Scope objects registration methods. The format places an array of string names as the first argument and &nbsp;an array of values as the second argument. The values can be strings, arrays, or objects depending on the specific requirements of the given method. All methods of Scope also return a reference back&nbsp;to the object.</span></p>
 
 					<div class="code-block">
@@ -253,7 +254,7 @@
 					&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;-&gt;result_handler([<span style="color:rgb(255, 140, 0)">&quot;rh1&quot;</span>,&nbsp;<span style="color:rgb(255, 140, 0)">&quot;rh2&quot;</span>], [<span style="color:rgb(0, 128, 128)">$ref_to_function1</span>,&nbsp;<span style="color:rgb(0, 128, 128)">$ref_to_function2</span>]);</span></p>
 
 					<p><span style="font-size:14px"><span style="color:rgb(0, 128, 128)">$damo_instance</span>&nbsp;=&nbsp;<span style="color:rgb(0, 0, 205)"><strong>new</strong></span>&nbsp;Damo(<span style="color:rgb(0, 128, 128)">$myscope</span>,&nbsp;<span style="color:rgb(255, 140, 0)">&quot;highscoremodel.xml&quot;</span>);</span></p>
-
+					<a id="anchor6" class="fl-inline-anchors" fl-parent="anchor4"></a>
 					<p><span style="font-size:14px"><span style="color:rgb(0, 0, 205)"><strong>echo</strong></span>&nbsp;<span style="color:rgb(0, 128, 128)">$damo _instance</span>-&gt;_JSON();</span></p>
 					</div>
 
@@ -555,7 +556,7 @@
 					<hr />
 					<p><span style="color:#6666ff"><strong>dm-repeat</strong></span></p>
 
-					<p>This directive may be the most dynamic and interesting of all directives in the DaMo xml language. It is comparable in function to the <a class="fl-inline-anchors" id="checker" fl-parent="This-is-an-anchor" href="http://asdasdsadas">AngularJS</a>&nbsp;<a href="http://dasdadasdas">ng-repeat</a>&nbsp;directive, but takes an integer value (passed as a string) instead of an array and key names. An example of the proper use of this directive is shown below.</p>
+					<p>This directive may be the most dynamic and interesting of all directives in the DaMo xml language. It is comparable in function to the </p>
 
 					<div class="code-block"><br />
 					<span style="color:#0000CD"><strong>&lt;usernames </strong></span><span style="color:#000080"><strong>dm-repeat</strong></span><span style="color:#000000">=</span><span style="color:#FF8C00">&quot;3&quot;</span><span style="color:#0000CD"><strong>&gt;</strong></span><br />
@@ -672,7 +673,7 @@
 				var meh = new MenuEventHub();
 				
 				//alert ( meh.compileAnchorPositions( mce.anchorModel )["This-is-an-anchor"]  );
-				meh.watch( document.getElementById( "flmenu"), mce.anchorModel );
+				meh.watch( document.getElementById( "flmenu"), mce.anchorModel, mmce );
 				
 			//Test MenuActivator next sibling function
 				var ma = new MenuActivator();
@@ -699,9 +700,24 @@
 				//test getNextFlElement function
 					//console.log( ma.getNextFlElement( "checker" ) );
 					
-					ma.setActive( "This-is-an-anchor-2", true );
+					//ma.setActive( "This-is-an-anchor-2", true );
 				
-				console.log( ma.getParentFlElement( "checker" )	);
+					//console.log( ma.getParentFlElement( "checker" )	);
+				//test hasLikeParents function
+					//console.log( ma.hasLikeParents( "This-is-an-anchor-2", "This-is-an-anchor-1" ) );
+				//test activate parent
+					var button = document.createElement( "button" ),
+						toggle = false;
+					
+					button.textContent = "Toggle Menu";
+					
+					document.getElementById( "holder" ).appendChild( button );
+						
+					button.onclick = function() {
+						toggle = toggle ? false : true;
+						ma.activateElement("This-is-an-anchor-2" , toggle);
+					}
+					
 				
 		</script>
 	</body>

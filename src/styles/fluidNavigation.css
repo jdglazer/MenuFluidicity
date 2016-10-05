@@ -1,5 +1,11 @@
 #flmenu > ul > li > ul{
-	display: none;
+	//display: none;
+}
+#flmenu > ul {
+	margin-top: 50px;
+	position: fixed;
+	background-color: white;
+	border: 2px solid black;
 }
 
 .fl-a {
@@ -21,6 +27,11 @@
 }
 
 .fl-li:hover > a {
+	padding-left: 2px;
+	border-left: 2px solid purple;
+}
+
+.fl-active > a{
 	padding-left: 2px;
 	border-left: 2px solid purple;
 }

@@ -611,6 +611,7 @@ var MEHProto = MenuEventHub.prototype = {
 	anchorTopPosition: {},
 	anchorList:  null,
 	menuUl: null,
+	menuActivator: null,
 	previousA: null,
 	
 /**
@@ -737,7 +738,7 @@ var MEHProto = MenuEventHub.prototype = {
 /**
  * THe function that implements scroll watcher and detection on passing of anchor list
  */
-	watch: function( menuHoldingElement, anchorList ) {
+	watch: function( menuHoldingElement, anchorList, mmce ) {
 		
 		if( !fl_isObj( menuHoldingElement ) || 	!fl_isObj( anchorList ) || !fl_isObj( window ) ) 
 			return false;
@@ -762,6 +763,10 @@ var MEHProto = MenuEventHub.prototype = {
 			
 		this.anchorPositions = this.compileAnchorPositions( anchorList );
 		
+		this.menuActivator = new MenuActivator();
+		
+		this.menuActivator.construct( menuHoldingElement.id, anchorList, mmce );
+		
 		window.onscroll = this.scrollHandler;		
 		
 	},
@@ -769,30 +774,7 @@ var MEHProto = MenuEventHub.prototype = {
  * An callback function that is called when a registered anchor element is passes the top or bottom of the page
  */
 	onanchorpass: function( previousAnchorId, anchorId, scrollDown ) {
-		console.log( anchorId+":", previousAnchorId+", "+ scrollDown );
-	},
-	
-	menuActivator: function( liId ) {
-		
-		if( fl_isObj( this.menuUl ) )
-			return;
-			
-		if ( !"getElementById" in this.menuUl )
-			return;
-			
-		var li = this.menuUl.getElementById( liId );
-		
-		var classes = li.className.split(" ");
-		
-		for(var iter in classes) {
-			
-			if( classes[iter] == fl_liActiveClass ) {
-				
-				break;
-			}
-		}
-			
-		
+		this.menuActivator.activateElement( previousAnchorId, anchorId, scrollDown );
 	}
 }
 // **************************************************** DEFINES, ALIASES: MenuActivator ***************************************************
@@ -970,7 +952,7 @@ var MAProto = MenuActivator.prototype = {
 			
 		var element = this.getByFlId( flId );
 		
-		if( !fl_isObj( element )) 
+		if( !fl_isObj( element ) || element == null ) 
 			return false;
 			
 		if( !"className" in element ) 
@@ -985,7 +967,6 @@ var MAProto = MenuActivator.prototype = {
 			
 			for( var j in classes ) {
 				
-				alert( classes[j]+"="+fl_liActiveClass );
 				if ( classes[j] != fl_liActiveClass ) {
 					
 					element.className=element.className+" "+classes[j];
@@ -1042,6 +1023,27 @@ var MAProto = MenuActivator.prototype = {
 			parent = this.getParentFlElement( parentId );
 		}
 	},
+/**
+ * checks if two elements have the same parent element structure above them
+ */
+	hasLikeParents: function( flId1, flId2 ) {
+		//get parent of element
+		var parent1 = this.getParentFlElement( flId1 ),
+			parent2 = this.getParentFlElement( flId2 );
+		
+		while( parent1 != null && parent2 != null ) {
+			
+			if( parent1 != parent2 ) {
+				return false;	
+			}
+			
+			parent1 = this.getParentFlElement( parent1.getAttribute( fl_liPositionAttributeName ) );
+			parent2 = this.getParentFlElement( parent2.getAttribute( fl_liPositionAttributeName ) );
+		}
+		
+		return parent2 == parent1;
+	},
+	
 /**
  * Returns the previous sibling element with the fl-id attribute present or null if it is the first
  */
@@ -1126,18 +1128,34 @@ var MAProto = MenuActivator.prototype = {
 /**
  * 
  */
-	activateElement: function( flId, downScroll ) {
+	activateElement: function( previousFlId, flId, downScroll ) {
 		
-		this.setSiblingsActive( flId, false );
+		var prevEl = this.getByFlId( previousFlId );
 		
-		if( downScroll ) {
-			this.setSiblingsActive( flId, false );
-			this.setActive( flId, true );
+		if( fl_isObj( prevEl ) && prevEl != null ) {
 			
+			if( "getAttribute" in prevEl ) {
+				var id = prevEl.getAttribute( fl_liPositionAttributeName );
+				this.setActive( id, false );
+			}
 		}
-		else {
-						
+		
+		var pel = this.getPreviousFlElement( flId ),
+			pelId = ( pel != null ? pel.getAttribute( fl_liPositionAttributeName ) : null );
+		
+		var activeId = downScroll? flId : pelId,
+			previousActiveId = downScroll ? pelId : flId ;
+		
+		console.log( activeId+", "+previousActiveId );
+		this.setSiblingsActive( activeId, false );
+		
+		if( !this.hasLikeParents( flId, previousActiveId )  ) {
+			this.setParentsActive( previousActiveId, false );
+			this.setParentsActive( activeId, true );	
 		}
+		
+		this.setActive( activeId, true );
+
 	}
 
 }
