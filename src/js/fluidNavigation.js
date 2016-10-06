@@ -121,7 +121,7 @@ MProto.create = function() {
 										
 					if( meh.watch( parent, mce.anchorModel, mmce ) ) {
 						
-						this.applyStyles( this.parentId );
+						this.applyStyles( this.parentId, this.settings );
 						
 						if( typeof onSuccess == "function" )
 							onSuccess();
@@ -139,16 +139,19 @@ MProto.create = function() {
 /**
  * A function used to apply styles to created menu
  */
-MProto.applyStyles = function( parentId ) {
+MProto.applyStyles = function( parentId, settings ) {
 	
-//aliasing long variable name
-	var f = fl_defaultStyles;
+	settings = fl_isObj( settings ) && settings != null ? settings : {};
+	
+//aliasing long variable name/objects
+	var f = fl_defaultStyles,
+		styles = "styles" in settings ? settings.styles: {};
 	
 	var css = f.defaults + " #"+parentId+" { "+f.parentElementDefault+" } "
 			  + "#"+parentId+" > "+fl_menuTag+" { "+f.highestListHolderDefault+" } "
-			  +f.listElementOnHoverCssSelector+" { "+f.listElementOnHover+" } "
-			  + f.listElementActivatedCssSelector+" { "+f.listElementActivated+" } "
-			  + f.listElementDeactivatedCssSelector+" { "+f.listElementDeactivated+" } ";
+			  +f.listElementOnHoverCssSelector+" { "+ ("hover" in styles? styles.hover : f.listElementOnHover )+" } "
+			  + f.listElementActivatedCssSelector+" { "+("activated" in styles? styles.activated : f.listElementActivated )+" } "
+			  + f.listElementDeactivatedCssSelector+" { "+("deactivated" in styles? styles.deactivated : f.listElementDeactivated )+" } ";
 	
 	var head = document.getElementsByTagName( "head" )[0],
 		style = document.createElement( "style" );
