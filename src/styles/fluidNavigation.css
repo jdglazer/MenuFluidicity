@@ -1,57 +1,42 @@
-#flmenu > ul > li > ul{
-	//display: none;
-}
-#flmenu > ul {
+
+#flmenu {
 	margin-top: 50px;
-	position: fixed;
 	background-color: white;
 	border: 2px solid black;
 }
 
-.fl-a {
-	text-decoration: none;
+/******* Essential Defaults - should not be overriden by the user ********/
 
-}
+/*
+#flmenu { position: fixed; }
+
+#flmenu > ul { display: block; }
+
+.fl-active > ul { display: block; }
+
+.fl-active { display: block; }
+
+.fl-a { text-decoration: none; }
 
 .fl-ul {
 	list-style-type: none;
+	display: none;
 }
 
-.fl-li {
-	
-}
+.fl-li {  }
+*/
+/************** styles activation of menu elements *****************/
+	/* unactivated list element style
 
-/* styles activation of menu elements */
-.fl-li > a {
-	padding: 4px;
-}
-
+.fl-li > a { padding: 4px; }
+*/
+	/* hover list element style 
 .fl-li:hover > a {
-	padding-left: 2px;
-	border-left: 2px solid purple;
-}
-
-.fl-active > a{
-	padding-left: 2px;
-	border-left: 2px solid purple;
-}
-/*
-.fl-li > ul {
-	display:none;
-}
-
-.fl-li:hover > ul {
-	display:block;
+	padding-left: 3px; border-left: 1px solid purple;
 }
 */
-
-/* class for displaying an entire <ul> */
-
-.fl-active {
-	display: block;
+	/* active element style 
+.fl-active > a {
+	padding-left: 2px; border-left: 2px solid purple;
 }
-
-/* class for displaying an entire element ( <li> ) as active */
-
-.fl-active-element {
-}
+*/

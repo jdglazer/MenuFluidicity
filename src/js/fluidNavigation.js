@@ -23,12 +23,30 @@ var fl_anchor ="a",
     fl_liActiveClass = "fl-active",
     fl_aStyleClass = "fl-a",
     fl_ulStyleClass = "fl-ul",
+    fl_styleHolderId = "fl-style",
     //arrays that store attribute/value pairs for each type of element in menu. This is where property/value pairs desired in html are declared
     fl_menuTagAttrValPairs = {
 		[fl_anchor]: { "class": fl_aStyleClass },
 		[fl_menuTag]: {"class": fl_ulStyleClass },
 		[fl_menuElementTag]: { [fl_liPositionAttributeName]: "", "class": fl_liStyleClass }
 			
+	},
+//******************************** Applied Styles *******************************************
+	fl_defaultStyles = {
+	// v These are esential defaults
+		defaults: "."+fl_aStyleClass+" { text-decoration: none; } ."
+					 +fl_ulStyleClass+" {	list-style-type: none; display: none; } ."
+					 +fl_liActiveClass+" > "+fl_menuTag+" { display: block; } ."
+					 +fl_liActiveClass+" { display: block; } ",
+		parentElementDefault: "position: fixed;",
+		highestListHolderDefault: "display: block;",
+	// v These are use changeable styles 
+		listElementOnHover: "padding-left: 3px; border-left: 1px solid purple;",
+		listElementOnHoverCssSelector: "."+fl_liStyleClass+":hover > "+fl_anchor,
+		listElementActivated: "padding-left: 2px; border-left: 2px solid purple;",
+		listElementActivatedCssSelector: "."+fl_liActiveClass+" > "+fl_anchor,
+		listElementDeactivated: "padding: 4px;",
+		listElementDeactivatedCssSelector: "."+fl_liStyleClass+" > "+fl_anchor
 	};
         
 //object library
@@ -80,10 +98,14 @@ var MProto = MenuFluidicity.prototype;
  * Primary function that builds menu and calls onSuccess callback if menu built successfully and onFailure callback otherwise
  * 
  */
-MProto.create = function( onSuccess, onFailure ) {
+MProto.create = function() {
+	
+	var onSuccess = arguments.length > 0 ? arguments[0] : null, 
+		ofFailure = arguments.length > 1 ? arguments[1] : null;
 	
 	var mmce = new MenuModelConstructionEngine(),
-		mce = new MenuConstructionEngine();
+		mce = new MenuConstructionEngine(),
+		meh = new MenuEventHub();
 		
 		if( mce.construct( mmce, document ) && this.parentId != null ) {
 			
@@ -91,18 +113,22 @@ MProto.create = function( onSuccess, onFailure ) {
 			
 			if( ul1 ) {
 // ADD MORE CODE TO FULLY APPEND MENU TO PARENT HOLDER AND TEST THIS FUNCTION!
-/***************************************************************************************************************************/
-/**************************************************************************************************************************             
- **************************************************************************************************************************
- ******************************************************* RESTART HERE *****************************************************                        
- ************************************************************************************************************************** 
- **************************************************************************************************************************/
- /*************************************************************************************************************************/
-
-				if( typeof onSuccess == "function" )
-					onSuccess();
+				var parent = document.getElementById( this.parentId );
+				
+				if( fl_isObj( parent ) && parent != null ) {
 					
-				return;
+					parent.appendChild( ul1 );
+										
+					if( meh.watch( parent, mce.anchorModel, mmce ) ) {
+						
+						this.applyStyles( this.parentId );
+						
+						if( typeof onSuccess == "function" )
+							onSuccess();
+							
+						return;
+					}
+				}
 			}
 		}
 			
@@ -110,6 +136,27 @@ MProto.create = function( onSuccess, onFailure ) {
 			onFailure();
 }
 
+/**
+ * A function used to apply styles to created menu
+ */
+MProto.applyStyles = function( parentId ) {
+	
+//aliasing long variable name
+	var f = fl_defaultStyles;
+	
+	var css = f.defaults + " #"+parentId+" { "+f.parentElementDefault+" } "
+			  + "#"+parentId+" > "+fl_menuTag+" { "+f.highestListHolderDefault+" } "
+			  +f.listElementOnHoverCssSelector+" { "+f.listElementOnHover+" } "
+			  + f.listElementActivatedCssSelector+" { "+f.listElementActivated+" } "
+			  + f.listElementDeactivatedCssSelector+" { "+f.listElementDeactivated+" } ";
+	
+	var head = document.getElementsByTagName( "head" )[0],
+		style = document.createElement( "style" );
+		style.id = fl_styleHolderId,
+		style.textContent = css;		
+		
+		head.appendChild( style );
+}
 //******************************************** DEFINES, ALIASES: MenuTagBuilder prototype ********************************************8
 var MTSProto = MenuTagBuilder.prototype = {
 
@@ -767,7 +814,9 @@ var MEHProto = MenuEventHub.prototype = {
 		
 		this.menuActivator.construct( menuHoldingElement.id, anchorList, mmce );
 		
-		window.onscroll = this.scrollHandler;		
+		window.onscroll = this.scrollHandler;
+		
+		return true;		
 		
 	},
 /**
@@ -1048,66 +1097,37 @@ var MAProto = MenuActivator.prototype = {
  * Returns the previous sibling element with the fl-id attribute present or null if it is the first
  */
 	getPreviousFlElement: function( flId ) {
-		var element = this.getByFlId( flId );
 		
-		if( !fl_isObj( element ) || element == null )
-			return null;
-		
-		if( !"previousSibling" in element )
+		if( this.flIdMap == null )
 			return null;
 			
-		element = element.previousSibling;
+		var element = this.getByFlId( flId ),
+			comparator = function( elem, index, arr ) {
+				return elem == element;
+			};
 		
-		while( element != null ) {
-						
-			if( "hasAttribute" in  element ) {
-				
-				if( element.hasAttribute( fl_liPositionAttributeName ) ) {
-					
-					return element;
-				}
-			}
-			
-			if( !"previousSibling" in element )
-				return null;
-				
-			element = element.previousSibling;
-		}
+		var i = this.flIdMap.findIndex( comparator ) - 1;
 		
-		return null;
+		return i >= 0 ? this.flIdMap[i]: null ;
+		
 	},
 /**
  * Returns the next sibling element with the fl-id attribute present or null if it is the last
  */
+ ///////////////////////////////////// NEVER USED /////////////////////////////////////////////////////
 	getNextFlElement: function( flId) {
 		
-		var element = this.getByFlId( flId );
-		
-		if( !fl_isObj( element ) || element == null )
-			return null;
-		
-		if( !"nextSibling" in element )
+		if( this.flIdMap == null )
 			return null;
 			
-		element = element.nextSibling;
+		var element = this.getByFlId( flId ),
+			comparator = function( elem, index, arr ) {
+				return elem == element;
+			};
 		
-		while( element != null ) {
-						
-			if( "hasAttribute" in  element ) {
-				
-				if( element.hasAttribute( fl_liPositionAttributeName ) ) {
-					
-					return element;
-				}
-			}
-			
-			if( !"nextSibling" in element )
-				return null;
-				
-			element = element.nextSibling;
-		}
+		var i = this.flIdMap.findIndex( comparator ) + 1;
 		
-		return null;
+		return i < this.flIdMap.length ? this.flIdMap[i]: null ;
 	},
 /**
  * Returns the parent fl-id containing element of element with specified fl-id or null if none can be found
@@ -1126,7 +1146,7 @@ var MAProto = MenuActivator.prototype = {
 		
 	},
 /**
- * 
+ * Activates an element based on scroll activation
  */
 	activateElement: function( previousFlId, flId, downScroll ) {
 		
@@ -1145,12 +1165,11 @@ var MAProto = MenuActivator.prototype = {
 		
 		var activeId = downScroll? flId : pelId,
 			previousActiveId = downScroll ? pelId : flId ;
-		
-		console.log( activeId+", "+previousActiveId );
+
 		this.setSiblingsActive( activeId, false );
+		this.setActive( previousActiveId, false );
 		
 		if( !this.hasLikeParents( flId, previousActiveId )  ) {
-			this.setParentsActive( previousActiveId, false );
 			this.setParentsActive( activeId, true );	
 		}
 		
