@@ -659,10 +659,26 @@ var MEHProto = MenuEventHub.prototype = {
  */
 	
 	anchorTopPosition: {},
+/**
+ * Stored a reference to the original list of compiled inline anchors from html
+ */
 	anchorList:  null,
+/**
+ * Stores a reference to the main highest parent ul element in the created menu
+ */
 	menuUl: null,
+/**
+ * Stores a reference to the MenuActivator instance established in calling the watch member function
+ */
 	menuActivator: null,
+/**
+ * Stores the fl-id value of the previously activated menu element 
+ */
 	previousA: null,
+/**
+ * variable to pause the scroll handler while click eventhandler is fully executing
+ */
+	pauseScrollHandler: false,
 	
 /**
  * The function that is passed to the window object's onscroll event handler. This function should be thought of as a member of
@@ -671,6 +687,10 @@ var MEHProto = MenuEventHub.prototype = {
  * object.
  */	
 	scrollHandler: function( event ) {
+		
+		if( !this.menuEventHubInstance.pauseScrollHandler ) {
+			
+			console.log( "Scroll Handler called" );
 						
 			this.menuEventHubInstance.updateAnchorPositionFromTop();
 			
@@ -687,7 +707,11 @@ var MEHProto = MenuEventHub.prototype = {
 					break;
 				}
 			}
-		},
+		}
+		else {
+			this.menuEventHubInstance.pauseScrollHandler = false;
+		}
+	},
 /**
  * Gets the distance between the top of the body and the element specified by the id argument
  */
@@ -816,17 +840,60 @@ var MEHProto = MenuEventHub.prototype = {
 		this.menuActivator = new MenuActivator();
 		
 		this.menuActivator.construct( menuHoldingElement.id, anchorList, mmce );
+/****************************************************************************************/
+/*************************WRITE COMMENTS HERE LATER**************************************/
+/****************************************************************************************/
+		var handler = function( event ) {			
+				window.menuEventHubInstance.pauseScrollHandler = true;
+				
+				var id = "getAttribute" in this ? this.getAttribute("fl-id"): null;
+				
+				this.menuActivatorRef.pointActivateElement( id, true );
+				
+				event.stopPropagation();
+				
+		}
+/***************************************************************************************/
+		this.applyClickHandlers( handler );
 		
 		window.onscroll = this.scrollHandler;
 		
 		return true;		
 		
 	},
+	
+	applyClickHandlers: function( clickHandler ) {
+		
+	//argument verification
+		if( !"flIdMap" in this.menuActivator || typeof clickHandler != "function" )
+			return;
+			
+	//make sure flIdMap is an array
+		if( !fl_arrayLike( this.menuActivator.flIdMap ) )
+			return;
+		
+	//aliasing long variable name
+		var f = this.menuActivator.flIdMap;
+		
+		for( var i in f ) {
+			
+			if( !fl_isObj( f[i] ) )
+				continue;
+				
+			if( !"onclick" in f[i] )
+				continue;
+		//adds a reference to the menu activator to each list element so that it can be referenced in clickHandler
+			f[i].menuActivatorRef = this.menuActivator;
+		//adds click handler
+			f[i].onclick = clickHandler;
+		}
+	},
 /**
  * An callback function that is called when a registered anchor element is passes the top or bottom of the page
  */
 	onanchorpass: function( previousAnchorId, anchorId, scrollDown ) {
 		this.menuActivator.activateElement( previousAnchorId, anchorId, scrollDown );
+		//this.menuActivator.pointActivateElement( anchorId, scrollDown );
 	}
 }
 // **************************************************** DEFINES, ALIASES: MenuActivator ***************************************************
@@ -840,6 +907,10 @@ var MAProto = MenuActivator.prototype = {
 	flIdMap: null,
 	
 	mmce: null,
+/**
+ * A variable used to determine if an event is propagated up from a child node containing same event handler
+ */
+	eventLocation: [ 0, 0 ],
 	
 	construct: function( menuHolderId, anchorList, menu_model_construction_engine ) {
 		
@@ -863,7 +934,7 @@ var MAProto = MenuActivator.prototype = {
 			
 		for( var iter in menu.childNodes ) {
 			
-			if( menu.childNodes[iter].tagName.toLowerCase() == fl_menuTag ) {
+			if( ( menu.childNodes[iter].tagName != null ? menu.childNodes[iter].tagName : "" ).toLowerCase() == fl_menuTag ) {
 				
 				this.menuUl = menu.childNodes[iter];
 				break;
@@ -952,6 +1023,9 @@ var MAProto = MenuActivator.prototype = {
  */
 	getByFlId: function( flId ) {
 		
+		if(flId == null)
+			return null;
+		
 		for( var iter in this.flIdMap ) {
 			
 			if( this.flIdMap[ iter ].getAttribute( fl_liPositionAttributeName ) == flId ) {
@@ -984,7 +1058,7 @@ var MAProto = MenuActivator.prototype = {
 		
 		for( var i in classes ) {
 			
-			if( classes[i] ==  fl_liActiveClass ) {
+			if( classes[i] == fl_liActiveClass ) {
 				return true;
 			}
 		}
@@ -1178,6 +1252,50 @@ var MAProto = MenuActivator.prototype = {
 		
 		this.setActive( activeId, true );
 
+	},
+/**
+ * Activates element based on a random click. This will also deactivate all elements containing fl-id attributes
+ */
+	pointActivateElement: function( flId, downScroll ) {
+		
+		flId = downScroll ? flId: this.getPreviousFlElement( flId );
+	//aliasing flIdMap property
+		var f = this.flIdMap;
+		
+		if( !fl_arrayLike ( f ) ) 
+			return;
+		
+		for( var i in f ) {
+			
+			if( !fl_isObj ( f[ i ] ) )
+				continue;
+				
+			if( !"className" in f[i] )
+				continue;
+						
+			//this.setActive( id, false );
+			var classes = f[i].className.split( "" ),
+				newClass = "";
+			
+			for( var j in classes ) {
+				if( classes[j] != fl_liActiveClass ) {
+					newClass = newClass+" "+classes[j];
+				}
+			}
+			
+			f[i].className = newClass.trim();
+				
+		}
+		
+	//Do not need a function activate parents because parents are automatically activated as they
+	//also contain a copy of the click handler function and click propagates up to them
+		var element = this.getByFlId( flId );
+		
+		while( element != null ) {	
+					
+			element.className = element.className+" "+fl_liActiveClass;
+			
+			element = this.getParentFlElement( element.getAttribute( fl_liPositionAttributeName ) );
+		}	
 	}
-
 }
