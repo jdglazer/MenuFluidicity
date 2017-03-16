@@ -32,7 +32,7 @@ example
        Title Of Menu Element
             Child Of Title Of Menu Element
            
-  The menu is applied rendered and activate by incluiding in the html page fluidNavigation.js and a single 
+  The menu is applied, rendered, and activated by including in the html page fluidNavigation.js and a single 
   line of additional javascript:
   
       <script type='text/javascript' src='path/fluidNavigation.js'></script>
